@@ -44,6 +44,7 @@
                 </div>
                 <nav class="sidebar-nav p-3 space-y-1">
                     <button class="main-tab-btn active" data-tab="garasi"><i class="fas fa-warehouse"></i><span data-i18n="nav.garasi">Garasi Saya</span></button>
+                    <button class="main-tab-btn" data-tab="tersimpan"><i class="fas fa-bookmark"></i><span data-i18n="nav.tersimpan">Hasil Tersimpan</span></button>
                     <p class="nav-section" data-i18n="nav.section-studio">Studio Modifikasi</p>
                     <button class="main-tab-btn" data-tab="modif"><i class="fas fa-screwdriver-wrench"></i><span data-i18n="nav.modif">Modif Studio</span></button>
                     <button class="main-tab-btn" data-tab="warna"><i class="fas fa-fill-drip"></i><span data-i18n="nav.warna">Warna &amp; Wrap</span></button>
@@ -128,6 +129,31 @@
                     <div id="content-warna" class="main-content-panel hidden"></div>
                     <div id="content-suasana" class="main-content-panel hidden"></div>
                     <div id="content-angle" class="main-content-panel hidden"></div>
+
+                    <!-- ===== TAB: HASIL TERSIMPAN ===== -->
+                    <div id="content-tersimpan" class="main-content-panel hidden">
+                        <h2 class="text-lg font-bold text-gray-800 mb-1" data-i18n="rs.title">Hasil Tersimpan</h2>
+                        <p class="text-sm text-gray-500 mb-4" data-i18n="rs.subtitle">Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 10 foto.</p>
+                        <div class="card">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold text-gray-800" data-i18n="rs.list-title">Koleksi</h3>
+                                <span id="rs-count" class="text-xs text-gray-400">0/10</span>
+                            </div>
+                            <div id="rs-empty" class="text-center py-12 text-gray-400">
+                                <i class="fas fa-bookmark text-4xl mb-3"></i>
+                                <p class="text-sm" data-i18n="rs.empty">Belum ada hasil tersimpan. Klik ikon simpan di kartu hasil studio.</p>
+                            </div>
+                            <div id="rs-grid" class="result-grid"></div>
+                        </div>
+                        <div class="tips-box mt-6">
+                            <p class="font-semibold mb-1"><i class="fas fa-lightbulb mr-1"></i><span data-i18n="tips.title">Tips</span></p>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                <li data-i18n="rs.tip1">Simpan hanya hasil terbaik, kuota 10 foto per perangkat. Hapus yang lama kalau penuh.</li>
+                                <li data-i18n="rs.tip2">Tombol "Jadikan kendaraan" memakai hasil ini sebagai foto dasar di studio lain, misalnya lihat dari angle lain.</li>
+                                <li data-i18n="rs.tip3">Tersimpan di browser perangkat ini, bukan di server. Hapus data browser = koleksi ikut hilang, jadi download yang penting.</li>
+                            </ul>
+                        </div>
+                    </div>
 
                     <!-- ===== TAB: KONSULTAN MODIF ===== -->
                     <div id="content-konsultan" class="main-content-panel hidden">

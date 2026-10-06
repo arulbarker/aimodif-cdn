@@ -12,6 +12,7 @@
                     'login.no-license': 'Belum punya lisensi?',
                     'login.buy': 'Beli di Lynk.id',
                     'nav.garasi': 'Garasi Saya',
+                    'nav.tersimpan': 'Hasil Tersimpan',
                     'nav.section-studio': 'Studio Modifikasi',
                     'nav.modif': 'Modif Studio',
                     'nav.warna': 'Warna & Wrap',
@@ -101,6 +102,24 @@
                     'md.tip1': 'Pilih gaya dulu, lalu centang part. Makin spesifik instruksi tambahan, makin presisi hasilnya.',
                     'md.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
                     'md.tip3': 'Mode "Pertahankan foto asli" menjaga latar & angle persis seperti foto kamu.',
+                    'md.step-angle': 'Angle hasil (opsional)',
+                    'md.angle-hint': 'Kosongkan = ikut angle foto asli. Pilih 1 atau beberapa angle = satu hasil per angle (jumlah hasil mengikuti angle, maks 10).',
+                    'st.sel-all': 'Pilih semua',
+                    'st.sel-none': 'Kosongkan',
+                    'st.save': 'Simpan',
+                    'st.use': 'Jadikan kendaraan',
+                    'st.saved': 'Tersimpan di Hasil Tersimpan.',
+                    'rs.title': 'Hasil Tersimpan',
+                    'rs.subtitle': 'Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 10 foto.',
+                    'rs.list-title': 'Koleksi',
+                    'rs.empty': 'Belum ada hasil tersimpan. Klik ikon simpan di kartu hasil studio.',
+                    'rs.del-confirm': 'Hapus foto ini dari koleksi?',
+                    'rs.tip1': 'Simpan hanya hasil terbaik, kuota 10 foto per perangkat. Hapus yang lama kalau penuh.',
+                    'rs.tip2': 'Tombol "Jadikan kendaraan" memakai hasil ini sebagai foto dasar di studio lain, misalnya lihat dari angle lain.',
+                    'rs.tip3': 'Tersimpan di browser perangkat ini, bukan di server. Hapus data browser = koleksi ikut hilang, jadi download yang penting.',
+                    'ct.title': 'Jadikan kendaraan di...',
+                    'ct.hint': 'Hasil ini dipakai sebagai foto kendaraan (Upload Langsung) di studio yang kamu pilih.',
+                    'err.rs-limit': 'Koleksi penuh (10 foto). Hapus salah satu di Hasil Tersimpan dulu.',
                     'wr.title': 'Warna & Wrap',
                     'wr.subtitle': 'Ganti warna cat atau wrap kendaraan. Bentuk, part, dan latar tetap sama.',
                     'wr.step-finish': 'Jenis finishing',
@@ -176,6 +195,7 @@
                     'login.no-license': 'No license yet?',
                     'login.buy': 'Buy on Lynk.id',
                     'nav.garasi': 'My Garage',
+                    'nav.tersimpan': 'Saved Results',
                     'nav.section-studio': 'Modification Studio',
                     'nav.modif': 'Modif Studio',
                     'nav.warna': 'Color & Wrap',
@@ -265,6 +285,24 @@
                     'md.tip1': 'Pick a style first, then tick the parts. The more specific the extra instructions, the more precise the result.',
                     'md.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
                     'md.tip3': '"Keep original photo" keeps the background & angle exactly like your photo.',
+                    'md.step-angle': 'Output angle (optional)',
+                    'md.angle-hint': 'Leave empty = same angle as the original photo. Pick 1 or more angles = one result per angle (count follows the angles, max 10).',
+                    'st.sel-all': 'Select all',
+                    'st.sel-none': 'Clear',
+                    'st.save': 'Save',
+                    'st.use': 'Use as vehicle',
+                    'st.saved': 'Saved to Saved Results.',
+                    'rs.title': 'Saved Results',
+                    'rs.subtitle': 'Generated results you saved. Stored on this device, up to 10 photos.',
+                    'rs.list-title': 'Collection',
+                    'rs.empty': 'Nothing saved yet. Tap the save icon on a studio result card.',
+                    'rs.del-confirm': 'Remove this photo from the collection?',
+                    'rs.tip1': 'Save only your best results, 10 photos per device. Delete old ones when full.',
+                    'rs.tip2': '"Use as vehicle" uses this result as the base photo in another studio, e.g. to view it from other angles.',
+                    'rs.tip3': 'Stored in the browser of this device, not on a server. Clearing browser data clears the collection, so download what matters.',
+                    'ct.title': 'Use as vehicle in...',
+                    'ct.hint': 'This result becomes the vehicle photo (Direct Upload) in the studio you pick.',
+                    'err.rs-limit': 'Collection is full (10 photos). Delete one in Saved Results first.',
                     'wr.title': 'Color & Wrap',
                     'wr.subtitle': 'Change the paint color or wrap. Shape, parts, and background stay the same.',
                     'wr.step-finish': 'Finish type',
@@ -747,13 +785,15 @@
             // record: { id, name, type: 'car'|'motorcycle', notes, photos: [b64 jpeg x1-4], createdAt }
             const GR_MAX_VEHICLES = 6;
             const GR_MAX_PHOTOS = 4;
-            window.vehicleDB = (function () {
-                const DB = 'ams_garage', STORE = 'vehicles';
+            const RS_MAX_RESULTS = 10;
+            // record results: { id, b64 (png), before (jpeg), kind, caption, tab, prompt, createdAt }
+            function makeLocalStore(STORE) {
+                const DB = 'ams_garage', STORES = ['vehicles', 'results'];
                 function open() {
                     return new Promise((resolve, reject) => {
-                        const req = indexedDB.open(DB, 1);
+                        const req = indexedDB.open(DB, 2);
                         req.onupgradeneeded = () => {
-                            if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE, { keyPath: 'id' });
+                            STORES.forEach(s => { if (!req.result.objectStoreNames.contains(s)) req.result.createObjectStore(s, { keyPath: 'id' }); });
                         };
                         req.onsuccess = () => resolve(req.result);
                         req.onerror = () => reject(req.error);
@@ -774,7 +814,18 @@
                     put(rec) { return tx('readwrite', s => s.put(rec)); },
                     remove(id) { return tx('readwrite', s => s.delete(id)); }
                 };
-            })();
+            }
+            window.vehicleDB = makeLocalStore('vehicles');
+            window.resultDB = makeLocalStore('results');
+            window.saveResult = async function (rec) {
+                const list = await window.resultDB.list();
+                if (list.length >= RS_MAX_RESULTS) { await window.uiNotify(t('err.rs-limit')); return false; }
+                const id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                await window.resultDB.put(Object.assign({ id, createdAt: Date.now() }, rec));
+                document.dispatchEvent(new CustomEvent('ams-results-changed'));
+                await window.uiNotify(t('st.saved'));
+                return true;
+            };
             window.getActiveVehicle = async function () {
                 const list = await window.vehicleDB.list();
                 if (!list.length) return null;
@@ -1299,15 +1350,23 @@
             }
             const VAR_HINTS = ['balanced, tasteful execution', 'bolder, more aggressive execution', 'subtle OEM-plus execution', 'show-level, maximal execution', 'daily-driver friendly execution', 'premium elegant execution'];
 
+            function angleEnvText(sel) {
+                if (sel.sceneMode === 'studio') return `Environment: ${STUDIO_SCENE}. `;
+                if (sel.sceneMode === 'custom' && sel.scene) return `Environment: ${sel.scene}. `;
+                return `Environment: the SAME location, lighting and time of day as IMAGE 1, re-projected consistently for the new viewpoint. `;
+            }
             window.buildModifPrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
                 const parts = (sel.parts || []).length ? `Apply these modifications: ${sel.parts.join('; ')}. ` : '';
                 const style = sel.style ? `MODIFICATION BRIEF - ${sel.style}. ` : '';
                 const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. ` : '';
                 const extra = sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '';
+                const viewpoint = pick && pick.angle
+                    ? `Then render the MODIFIED ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` + angleEnvText(sel)
+                    : sceneText(v, sel);
                 return lockText(v) + refsText(v, refs) + style + parts + extra + variation +
                     `Everything NOT listed stays exactly as in the reference photos (same paint color unless a color change is listed, same body, same ride height unless listed). Render every modification realistically fitted to this specific ${kind}. ` +
-                    sceneText(v, sel) + tailText(sel);
+                    viewpoint + tailText(sel);
             };
             window.buildColorPrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
@@ -1331,10 +1390,7 @@
             window.buildAnglePrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
                 const angle = (pick && pick.angle) || sel.angle;
-                let env;
-                if (sel.sceneMode === 'studio') env = `Environment: ${STUDIO_SCENE}. `;
-                else if (sel.sceneMode === 'custom' && sel.scene) env = `Environment: ${sel.scene}. `;
-                else env = `Environment: the SAME location, lighting and time of day as IMAGE 1, re-projected consistently for the new viewpoint. `;
+                const env = angleEnvText(sel);
                 return lockText(v) +
                     `Render this exact ${kind} from a NEW viewpoint: ${angle}. ` +
                     `The ${kind} itself stays 100% identical: same paint color, same wheels, same stance, same modifications, same decals. Infer unseen sides consistently from the visible design and the extra reference photos. ` +
@@ -1378,6 +1434,7 @@
                 for (const s of cfg.steps) {
                     stepsHtml += `<div class="card">${stepHead(s.titleKey)}`;
                     if (s.hintKey) stepsHtml += `<p class="text-xs text-gray-400 mb-2" data-i18n="${s.hintKey}"></p>`;
+                    if (s.selectAll) stepsHtml += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[32px]" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[32px]" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
                     if (s.type === 'typed') stepsHtml += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols });
                     else stepsHtml += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
                     if (s.customInput) stepsHtml += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
@@ -1396,6 +1453,7 @@
                             <button type="button" class="option-btn" data-val="custom" data-no-i18n><i class="fas fa-mountain-sun mr-1"></i><span data-i18n="st.scene-custom"></span></button>
                         </div>${sceneSelect(p)}
                     </div>` : '';
+                const extraHead = stepHead('st.extra');
                 const countHtml = cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
                         <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
                     </div>` : '';
@@ -1409,7 +1467,7 @@
                             ${stepsHtml}
                             ${refsHtml}
                             ${sceneHtml}
-                            <div class="card">${stepHead('st.extra')}
+                            <div class="card">${extraHead}
                                 <textarea id="${p}-extra" rows="2" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="st.extra-ph"></textarea>
                                 <div class="grid grid-cols-2 gap-3 mt-3">
                                     <div>
@@ -1464,6 +1522,14 @@
 
                 // --- chip handling (single / multi) ---
                 host.addEventListener('click', (e) => {
+                    const bulk = e.target.closest('[data-sel-all], [data-sel-none]');
+                    if (bulk) {
+                        const key = bulk.dataset.selAll || bulk.dataset.selNone;
+                        const g = host.querySelector(`[data-group="${key}"]`); if (!g) return;
+                        const scope = g.dataset.typed === '1' ? g.querySelector(`[data-for="${currentType}"]`) : g;
+                        scope.querySelectorAll('.option-btn').forEach(b => b.classList.toggle('selected', bulk.hasAttribute('data-sel-all')));
+                        return;
+                    }
                     const btn = e.target.closest('.option-btn');
                     if (!btn || pickerHost.contains(btn)) return;
                     const group = btn.closest('[data-group], [data-scene-mode], [data-count-group], [data-ratio-group], [data-plate-group]');
@@ -1581,6 +1647,8 @@
                         <button class="icon-btn" style="background:#22c55e;" data-action="regen" data-index="${index - 1}" data-i18n-title="st.regen"><i class="fas fa-rotate"></i></button>
                         <button class="icon-btn" style="background:#0891b2;" data-action="download" data-index="${index - 1}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
                         <button class="icon-btn" style="background:#d946ef;" data-action="video" data-index="${index - 1}" data-i18n-title="st.video"><i class="fas fa-video"></i></button>
+                        <button class="icon-btn" style="background:#7c3aed;" data-action="save" data-index="${index - 1}" data-i18n-title="st.save"><i class="fas fa-bookmark"></i></button>
+                        <button class="icon-btn" style="background:#0f766e;" data-action="use" data-index="${index - 1}" data-i18n-title="st.use"><i class="fas fa-car-side"></i></button>
                     </div>`;
                 function renderSuccessful() {
                     results = results.filter(Boolean);
@@ -1649,6 +1717,8 @@
                     if (action === 'compare') window.showCompare('data:image/jpeg;base64,' + r.before, 'data:image/png;base64,' + r.b64);
                     if (action === 'download') await window.downloadImage('data:image/png;base64,' + r.b64, r.filename);
                     if (action === 'video') window.showVideoPromptModal({ b64: r.b64, kind: r.kind, card: btn.closest('.result-card') });
+                    if (action === 'save') await window.saveResult({ b64: r.b64, before: r.before, kind: r.kind, caption: r.caption, tab: p, prompt: r.prompt });
+                    if (action === 'use') window.showContinueModal(r.b64, r.kind);
                     if (action === 'regen') {
                         if (busy) return;
                         busy = true;
@@ -1731,6 +1801,22 @@
                 setTimeout(() => m.classList.add('show'), 10);
             };
 
+            window.showContinueModal = function (b64, kind) {
+                const targets = [['angle', 'nav.angle', 'cube'], ['warna', 'nav.warna', 'fill-drip'], ['suasana', 'nav.suasana', 'camera'], ['modif', 'nav.modif', 'screwdriver-wrench']];
+                window.showUniversalModal(t('ct.title'), `<p class="text-xs text-gray-500 mb-3">${window.escHtml(t('ct.hint'))}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${targets.map(([tab, key, icon]) => `<button type="button" class="option-btn" data-continue="${tab}" data-no-i18n><i class="fas fa-${icon} mr-1"></i><span data-i18n="${key}"></span></button>`).join('')}</div>`);
+                document.getElementById('modal-body').querySelectorAll('[data-continue]').forEach(b => b.addEventListener('click', async () => {
+                    const tab = b.dataset.continue;
+                    window.closeUniversalModal();
+                    try {
+                        const c = await window.compressImage(window.b64ToBlob(b64, 'image/png'), 1280, 0.88);
+                        const host = window.studioHosts && window.studioHosts[tab];
+                        if (host) host.setVehicleUpload(c.b64, kind);
+                        window.switchTab(tab);
+                    } catch (e) { window.logDebug('continue', e); await window.uiNotify(t('err.img-read')); }
+                }));
+            };
+
             // ==================== INSTANSIASI TAB STUDIO ====================
             const LABEL_OF = {};
             [].concat(SCENES, LIGHTS, TIMES, STYLES.car, STYLES.motorcycle, PARTS.car, PARTS.motorcycle, FINISHES, COLORS, AREAS, ANGLES.car, ANGLES.motorcycle)
@@ -1747,16 +1833,21 @@
                 tab: 'modif', prefix: 'md', icon: 'screwdriver-wrench', refs: true, sceneMode: true, countMode: 'count',
                 steps: [
                     { key: 'style', titleKey: 'md.step-style', type: 'typed', byType: STYLES, cols: 'grid-cols-2' },
-                    { key: 'parts', titleKey: 'md.step-parts', hintKey: 'md.parts-hint', type: 'typed', byType: PARTS, multi: true, cols: 'grid-cols-2' }
+                    { key: 'parts', titleKey: 'md.step-parts', hintKey: 'md.parts-hint', type: 'typed', byType: PARTS, multi: true, cols: 'grid-cols-2' },
+                    { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true }
                 ],
-                makePicks: (sel) => Array.from({ length: sel.count }, (_, i) => ({
-                    variant: sel.count > 1 ? VAR_HINTS[i % VAR_HINTS.length] : '',
-                    caption: sel.count > 1 ? VAR_CAPTIONS[i % VAR_CAPTIONS.length] : ''
-                })),
+                makePicks: (sel) => {
+                    const angles = (sel.outAngle || []).slice(0, 10);
+                    if (angles.length) return angles.map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
+                    return Array.from({ length: sel.count }, (_, i) => ({
+                        variant: sel.count > 1 ? VAR_HINTS[i % VAR_HINTS.length] : '',
+                        caption: sel.count > 1 ? VAR_CAPTIONS[i % VAR_CAPTIONS.length] : ''
+                    }));
+                },
                 promptFn: window.buildModifPrompt
             });
 
-            createStudioTab({
+            const warnaHost = createStudioTab({
                 tab: 'warna', prefix: 'wr', icon: 'fill-drip', refs: true, sceneMode: true, countMode: 'count',
                 steps: [
                     { key: 'finish', titleKey: 'wr.step-finish', type: 'chips', options: FINISHES, cols: 'grid-cols-3' },
@@ -1767,7 +1858,7 @@
                 promptFn: window.buildColorPrompt
             });
 
-            createStudioTab({
+            const suasanaHost = createStudioTab({
                 tab: 'suasana', prefix: 'su', icon: 'camera', refs: false, sceneMode: false, countMode: 'count',
                 steps: [
                     { key: 'scene', titleKey: 'su.step-scene', type: 'chips', options: SCENES, random: true, cols: 'grid-cols-2' },
@@ -1785,15 +1876,16 @@
                 promptFn: window.buildScenePrompt
             });
 
-            createStudioTab({
+            const angleHost = createStudioTab({
                 tab: 'angle', prefix: 'an', icon: 'cube', refs: false, sceneMode: true, countMode: 'angles',
                 steps: [
-                    { key: 'angles', titleKey: 'an.step-angles', hintKey: 'an.angles-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2' }
+                    { key: 'angles', titleKey: 'an.step-angles', hintKey: 'an.angles-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true }
                 ],
                 validate: (sel) => (!sel.angles || !sel.angles.length) ? 'err.no-angle' : null,
                 makePicks: (sel) => (sel.angles || []).slice(0, 10).map(a => ({ angle: a, caption: LABEL_OF[a] || '' })),
                 promptFn: window.buildAnglePrompt
             });
+            window.studioHosts = { modif: modifHost, warna: warnaHost, suasana: suasanaHost, angle: angleHost };
 
             // === TAB: KONSULTAN MODIF (teks - model vision) ===
             (function () {
@@ -1888,6 +1980,51 @@
             })();
             // === END TAB: KONSULTAN ===
 
+            // === TAB: HASIL TERSIMPAN (IndexedDB perangkat, maks RS_MAX_RESULTS) ===
+            (function () {
+                const grid = document.getElementById('rs-grid');
+                const emptyEl = document.getElementById('rs-empty');
+                const countEl = document.getElementById('rs-count');
+                let items = [];
+                async function render() {
+                    items = await window.resultDB.list();
+                    countEl.textContent = `${items.length}/${RS_MAX_RESULTS}`;
+                    emptyEl.classList.toggle('hidden', items.length > 0);
+                    grid.innerHTML = items.map((r, i) => `<div class="result-card">
+                        <span class="image-counter">#${i + 1}</span>
+                        <img src="data:image/png;base64,${r.b64}" alt="#${i + 1}">
+                        <p class="cap pt-2"><span data-i18n="nav.${window.escHtml(r.tab || 'modif')}"></span>${r.caption ? ` &middot; <span data-i18n-dyn>${window.escHtml(r.caption)}</span>` : ''} &middot; ${new Date(r.createdAt || 0).toLocaleDateString()}</p>
+                        <div class="result-card-actions">
+                            <button class="icon-btn" style="background:#3b82f6;" data-action="preview" data-id="${r.id}" data-i18n-title="st.preview"><i class="fas fa-eye"></i></button>
+                            <button class="icon-btn" style="background:#f59e0b;" data-action="compare" data-id="${r.id}" data-i18n-title="st.compare"><i class="fas fa-left-right"></i></button>
+                            <button class="icon-btn" style="background:#0891b2;" data-action="download" data-id="${r.id}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
+                            <button class="icon-btn" style="background:#d946ef;" data-action="video" data-id="${r.id}" data-i18n-title="st.video"><i class="fas fa-video"></i></button>
+                            <button class="icon-btn" style="background:#0f766e;" data-action="use" data-id="${r.id}" data-i18n-title="st.use"><i class="fas fa-car-side"></i></button>
+                            <button class="icon-btn" style="background:#dc2626;" data-action="delete" data-id="${r.id}" data-i18n-title="btn.delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`).join('');
+                    if (window._i18nApplyNow) window._i18nApplyNow();
+                }
+                grid.addEventListener('click', async (e) => {
+                    const btn = e.target.closest('button[data-action]'); if (!btn) return;
+                    const action = btn.dataset.action;
+                    const r = items.find(x => x.id === btn.dataset.id); if (!r) return;
+                    if (action === 'preview') window.showImagePreview('data:image/png;base64,' + r.b64);
+                    if (action === 'compare') window.showCompare('data:image/jpeg;base64,' + r.before, 'data:image/png;base64,' + r.b64);
+                    if (action === 'download') await window.downloadImage('data:image/png;base64,' + r.b64, `tersimpan-${r.id}.png`);
+                    if (action === 'video') window.showVideoPromptModal({ b64: r.b64, kind: r.kind, card: btn.closest('.result-card') });
+                    if (action === 'use') window.showContinueModal(r.b64, r.kind);
+                    if (action === 'delete') {
+                        if (!(await window.uiConfirm(t('rs.del-confirm')))) return;
+                        await window.resultDB.remove(r.id);
+                        document.dispatchEvent(new CustomEvent('ams-results-changed'));
+                    }
+                });
+                document.addEventListener('ams-results-changed', render);
+                render();
+            })();
+            // === END TAB: HASIL TERSIMPAN ===
+
             // ==================== PROMPT VIDEO (image-to-video) ====================
             const VIDEO_MOTIONS = [
                 { val: 'slow 360-degree orbit around the vehicle', label: 'Orbit 360' },
@@ -1944,8 +2081,17 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.0';
+            window.APP_VERSION = '1.1';
             window.CHANGELOG = [
+                { version: '1.1', date: '7 Okt 2026', changes: [
+                    { id: 'Modif Studio: step "Angle hasil" - pilih 1 atau semua angle, hasil modif langsung dirender dari sudut pandang itu (kosongkan = ikut foto asli)',
+                      en: 'Modif Studio: "Output angle" step - pick 1 or all angles, the modified result is rendered from those viewpoints (empty = same as the original photo)' },
+                    { id: 'Tab Hasil Tersimpan: tombol simpan di tiap kartu hasil, koleksi maks 10 foto di perangkat ini',
+                      en: 'Saved Results tab: save button on every result card, collection of up to 10 photos on this device' },
+                    { id: 'Tombol "Jadikan kendaraan": hasil generate langsung jadi foto dasar di Multi-Angle / Warna / Suasana / Modif tanpa download-upload ulang',
+                      en: '"Use as vehicle" button: a generated result becomes the base photo in Multi-Angle / Color / Scene / Modif without re-uploading' },
+                    { id: 'Tombol "Pilih semua / Kosongkan" di pemilih angle', en: '"Select all / Clear" buttons on the angle picker' }
+                ] },
                 { version: '1.0', date: '7 Okt 2026', changes: [
                     { id: 'Rilis perdana: Garasi (simpan kendaraan di perangkat), Modif Studio (gaya + part + foto referensi velg/body kit), Warna & Wrap, Foto Studio / Suasana (21 latar), Multi-Angle (14 sudut), Konsultan Modif AI, slider Before/After, dan Prompt Video',
                       en: 'First release: Garage (vehicles saved on device), Modif Studio (style + parts + wheel/body kit reference photos), Color & Wrap, Photo Studio / Scene (21 backdrops), Multi-Angle (14 viewpoints), AI Mod Consultant, Before/After slider, and Video Prompt' }
