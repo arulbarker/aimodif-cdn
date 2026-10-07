@@ -22,4 +22,4 @@ Canvas shell references the `@main` branch URL and stays stable across
 releases — paste once. Build pipeline purges jsDelivr cache after each push
 so updates propagate within seconds.
 
-Last build: 2026-10-06T19:00:57.070Z
+Last build: 2026-10-07T00:59:27.428Z

@@ -97,13 +97,14 @@
                     'md.title': 'Modif Studio',
                     'md.subtitle': 'Upload foto kendaraan, pilih gaya & part, AI merender hasil modifikasinya. Bentuk dasar kendaraan tetap, hanya part yang berubah.',
                     'md.step-style': 'Gaya modifikasi',
+                    'md.style-hint': '"Tanpa gaya" = hanya part / referensi / instruksi yang diterapkan, tanpa arahan gaya tambahan.',
                     'md.step-parts': 'Part yang dimodif',
                     'md.parts-hint': 'Pilih beberapa sekaligus. Detailkan di instruksi tambahan.',
                     'md.tip1': 'Pilih gaya dulu, lalu centang part. Makin spesifik instruksi tambahan, makin presisi hasilnya.',
                     'md.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
                     'md.tip3': 'Mode "Pertahankan foto asli" menjaga latar & angle persis seperti foto kamu.',
                     'md.step-angle': 'Angle hasil (opsional)',
-                    'md.angle-hint': 'Kosongkan = ikut angle foto asli. Pilih 1 atau beberapa angle = satu hasil per angle (jumlah hasil mengikuti angle, maks 10).',
+                    'md.angle-hint': 'Kosongkan = ikut angle foto asli. Pilih 1 atau beberapa angle = satu hasil per angle (maks 10). "Acak" = angle acak sejumlah "Jumlah hasil".',
                     'st.sel-all': 'Pilih semua',
                     'st.sel-none': 'Kosongkan',
                     'st.save': 'Simpan',
@@ -175,7 +176,15 @@
                     'cmp.hint': 'Geser garis untuk membandingkan',
                     'wn.title': 'Apa yang Baru',
                     'wn.empty': 'Belum ada catatan rilis.',
-                    'err.gen-failed': 'Generate gagal. Coba lagi. Kalau berulang, akun Google ini mungkin capai batas harian, ganti akun.',
+                    'err.gen-failed': 'Generate gagal. Coba lagi beberapa saat lagi.',
+                    'err.gen-rate': 'Terlalu banyak permintaan sekaligus / kuota harian akun Google ini habis. Tunggu sebentar, kurangi jumlah hasil, atau ganti akun Google.',
+                    'err.gen-key': 'Permintaan ditolak Google (key tidak valid, foto terlalu besar, atau model berubah). Muat ulang halaman Canvas lalu coba lagi.',
+                    'err.gen-server': 'Server Google sedang bermasalah. Sudah dicoba ulang otomatis, coba lagi beberapa menit lagi.',
+                    'err.gen-blocked': 'Foto / instruksi ini ditolak filter keamanan AI. Coba foto lain atau ubah instruksinya.',
+                    'err.gen-network': 'Koneksi internet terputus / terlalu lambat. Cek sinyal lalu klik Ulangi di kartu yang gagal.',
+                    'err.gen-partial': '{n} dari {m} hasil gagal. Klik Ulangi di kartu yang gagal.',
+                    'err.storage': 'Penyimpanan perangkat penuh atau tidak tersedia (mode privat?). Hapus kendaraan / hasil lama atau download dulu.',
+                    'st.ratio-auto': 'Ikut foto',
                     'err.no-vehicle': 'Pilih kendaraan dari garasi atau upload foto dulu.',
                     'err.no-angle': 'Pilih minimal 1 angle.',
                     'err.no-part': 'Pilih minimal 1 part atau isi instruksi tambahan.',
@@ -280,13 +289,14 @@
                     'md.title': 'Modif Studio',
                     'md.subtitle': 'Upload a vehicle photo, pick a style & parts, and the AI renders the modified result. The base vehicle stays the same, only the parts change.',
                     'md.step-style': 'Modification style',
+                    'md.style-hint': '"No style" = only the parts / references / instructions are applied, no extra style direction.',
                     'md.step-parts': 'Parts to modify',
                     'md.parts-hint': 'Select several at once. Add details in the extra instructions.',
                     'md.tip1': 'Pick a style first, then tick the parts. The more specific the extra instructions, the more precise the result.',
                     'md.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
                     'md.tip3': '"Keep original photo" keeps the background & angle exactly like your photo.',
                     'md.step-angle': 'Output angle (optional)',
-                    'md.angle-hint': 'Leave empty = same angle as the original photo. Pick 1 or more angles = one result per angle (count follows the angles, max 10).',
+                    'md.angle-hint': 'Leave empty = same angle as the original photo. Pick 1 or more angles = one result per angle (max 10). "Random" = random angles, as many as "Number of results".',
                     'st.sel-all': 'Select all',
                     'st.sel-none': 'Clear',
                     'st.save': 'Save',
@@ -358,7 +368,15 @@
                     'cmp.hint': 'Drag the line to compare',
                     'wn.title': "What's New",
                     'wn.empty': 'No release notes yet.',
-                    'err.gen-failed': 'Generation failed. Try again. If it keeps failing, this Google account may have hit its daily limit - switch accounts.',
+                    'err.gen-failed': 'Generation failed. Try again in a moment.',
+                    'err.gen-rate': 'Too many requests at once / this Google account hit its daily quota. Wait a bit, lower the number of results, or switch Google accounts.',
+                    'err.gen-key': 'Request rejected by Google (invalid key, photo too large, or model changed). Reload the Canvas page and try again.',
+                    'err.gen-server': 'Google server trouble. Retried automatically, please try again in a few minutes.',
+                    'err.gen-blocked': 'This photo / instruction was rejected by the AI safety filter. Try another photo or change the instructions.',
+                    'err.gen-network': 'Internet connection dropped / too slow. Check your signal, then tap Retry on the failed card.',
+                    'err.gen-partial': '{n} of {m} results failed. Tap Retry on the failed cards.',
+                    'err.storage': 'Device storage is full or unavailable (private mode?). Delete old vehicles / results or download first.',
+                    'st.ratio-auto': 'Same as photo',
                     'err.no-vehicle': 'Pick a vehicle from the garage or upload a photo first.',
                     'err.no-angle': 'Select at least 1 angle.',
                     'err.no-part': 'Select at least 1 part or fill in the extra instructions.',
@@ -401,7 +419,7 @@
                     'Hemat': 'Low', 'Menengah': 'Medium', 'Sultan': 'High',
                     'Pertahankan': 'Keep', 'Blur': 'Blur', 'Hapus': 'Remove',
                     'Pertahankan foto asli': 'Keep original photo', 'Pindah ke studio': 'Move to studio', 'Pilih suasana': 'Choose a scene',
-                    'Stance / Ceper': 'Stance / Lowered', 'Sleeper / OEM+': 'Sleeper / OEM+', 'Street Racing': 'Street Racing', 'Drift': 'Drift', 'Rally': 'Rally', 'Time Attack / Track': 'Time Attack / Track',
+                    'Tanpa gaya': 'No style', 'Stance / Ceper': 'Stance / Lowered', 'Sleeper / OEM+': 'Sleeper / OEM+', 'Street Racing': 'Street Racing', 'Drift': 'Drift', 'Rally': 'Rally', 'Time Attack / Track': 'Time Attack / Track',
                     'Offroad / Overland': 'Offroad / Overland', 'VIP / Bippu': 'VIP / Bippu', 'Luxury Elegan': 'Elegant Luxury', 'Retro / Klasik': 'Retro / Classic', 'Widebody': 'Widebody', 'Minimalis Bersih': 'Clean Minimal',
                     'Cafe Racer': 'Cafe Racer', 'Scrambler': 'Scrambler', 'Bobber': 'Bobber', 'Chopper': 'Chopper', 'Supermoto': 'Supermoto', 'Thailook': 'Thailook', 'Touring': 'Touring', 'Sport Fairing': 'Sport Fairing', 'Matic Elegan': 'Elegant Scooter', 'Tracker': 'Tracker', 'Street Fighter': 'Street Fighter',
                     'Velg': 'Wheels', 'Ban': 'Tires', 'Body Kit': 'Body Kit', 'Spoiler / Wing': 'Spoiler / Wing', 'Ceper / Lowering': 'Lowering', 'Lift Kit / Tinggi': 'Lift Kit', 'Lampu': 'Lights', 'Knalpot': 'Exhaust',
@@ -516,6 +534,12 @@
             window.showUniversalModal = showUniversalModal;
             window.closeUniversalModal = () => universalModal.classList.remove('visible');
             closeModalBtn.addEventListener('click', window.closeUniversalModal);
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+                const top = [...document.querySelectorAll('.image-preview-modal.show')].pop();
+                if (top) { top.click(); return; }
+                if (universalModal.classList.contains('visible')) window.closeUniversalModal();
+            });
             universalModal.addEventListener('click', (e) => { if (e.target === universalModal) window.closeUniversalModal(); });
 
             // ==================== DIALOG HELPERS (pengganti alert/confirm - diblokir sandbox Canvas) ====================
@@ -806,6 +830,7 @@
                         const out = fn(tr.objectStore(STORE));
                         tr.oncomplete = () => { db.close(); resolve(out.result !== undefined ? out.result : out.value); };
                         tr.onerror = () => { db.close(); reject(tr.error); };
+                        tr.onabort = () => { db.close(); reject(tr.error || new Error('IndexedDB transaction aborted')); };
                     });
                 }
                 return {
@@ -821,7 +846,9 @@
                 const list = await window.resultDB.list();
                 if (list.length >= RS_MAX_RESULTS) { await window.uiNotify(t('err.rs-limit')); return false; }
                 const id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                await window.resultDB.put(Object.assign({ id, createdAt: Date.now() }, rec));
+                try {
+                    await window.resultDB.put(Object.assign({ id, createdAt: Date.now() }, rec));
+                } catch (e) { window.logDebug('rs-save', e); await window.uiNotify(t('err.storage')); return false; }
                 document.dispatchEvent(new CustomEvent('ams-results-changed'));
                 await window.uiNotify(t('st.saved'));
                 return true;
@@ -901,10 +928,15 @@
                     if (list.length >= GR_MAX_VEHICLES) { await window.uiNotify(t('err.gr-limit')); return; }
                     busy = true;
                     const id = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                    await window.vehicleDB.put({ id, name, type: selType, notes: notesInput.value.trim(), photos: photos.map(p => p.b64), createdAt: Date.now() });
+                    try {
+                        await window.vehicleDB.put({ id, name, type: selType, notes: notesInput.value.trim(), photos: photos.map(p => p.b64), createdAt: Date.now() });
+                    } catch (e) {
+                        window.logDebug('gr-save', e);
+                        await window.uiNotify(t('err.storage'));
+                        return;
+                    } finally { busy = false; }
                     photos = []; renderBox(); nameInput.value = ''; notesInput.value = '';
                     window.setActiveVehicle(id);
-                    busy = false;
                     await window.uiNotify(t('gr.saved'));
                 });
 
@@ -925,8 +957,8 @@
                                     ${v.notes ? `<p class="text-[11px] text-gray-400 truncate">${window.escHtml(v.notes)}</p>` : ''}
                                 </div>
                                 <div class="flex flex-col gap-1">
-                                    <button class="text-xs font-semibold rounded-lg px-2.5 py-1.5 ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-700'}" data-action="select" data-id="${v.id}" style="min-height:32px;"><span data-i18n="${isActive ? 'btn.active' : 'btn.use'}"></span></button>
-                                    <button class="text-xs text-red-500 rounded-lg px-2.5 py-1.5" data-action="delete" data-id="${v.id}" style="min-height:32px;" aria-label="Hapus"><i class="fas fa-trash"></i></button>
+                                    <button class="text-xs font-semibold rounded-lg px-2.5 py-1.5 ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-700'}" data-action="select" data-id="${v.id}" style="min-height:44px;"><span data-i18n="${isActive ? 'btn.active' : 'btn.use'}"></span></button>
+                                    <button class="text-xs text-red-500 rounded-lg px-2.5 py-1.5" data-action="delete" data-id="${v.id}" style="min-height:44px;min-width:44px;" aria-label="Hapus"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>`;
                         }).join('');
@@ -1045,6 +1077,7 @@
                         </div>`;
                         if (!autoPicked) { autoPicked = true; setSrc('upload'); }
                     } else {
+                        if (autoPicked && !upload && src === 'upload') { autoPicked = false; setSrc('garage'); }
                         strip.innerHTML = `<div class="vehicle-card active">
                             <img src="data:image/jpeg;base64,${v.photos[0]}" alt="">
                             <div class="min-w-0 flex-1">
@@ -1093,18 +1126,39 @@
                     { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
                 ]
             };
+            // Error API bertipe: code = NETWORK | RATE_LIMIT | KEY | SERVER | BLOCKED | EMPTY
+            function apiError(code, detail) { const e = new Error(code + (detail ? ': ' + String(detail).slice(0, 200) : '')); e.code = code; return e; }
+            window.AMS_RETRYABLE = (code) => code === 'NETWORK' || code === 'SERVER' || code === 'RATE_LIMIT';
+            window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network' })[err && err.code] || 'err.gen-failed';
+            async function callGemini(model, parts) {
+                const g = window.AMS_GEN;
+                let response;
+                try {
+                    response = await fetch(g.API_URL(model), {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts }], safetySettings: g.SAFETY }),
+                        signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(90000) : undefined
+                    });
+                } catch (e) { throw apiError('NETWORK', e && e.name); }
+                let result = null;
+                try { result = await response.json(); } catch (e) { result = null; }
+                const em = result && result.error ? result.error.message : '';
+                if (response.status === 429) throw apiError('RATE_LIMIT', em);
+                if (response.status === 400 || response.status === 401 || response.status === 403 || response.status === 404) throw apiError('KEY', em || response.status);
+                if (!response.ok) throw apiError('SERVER', em || response.status);
+                const block = result?.promptFeedback?.blockReason;
+                const finish = result?.candidates?.[0]?.finishReason;
+                if (block || (finish && finish !== 'STOP' && finish !== 'MAX_TOKENS')) throw apiError('BLOCKED', block || finish);
+                return result;
+            }
             async function genImageWithRefs(promptText, refs) {
                 const g = window.AMS_GEN;
                 const parts = [];
                 (refs || []).forEach(r => parts.push({ inlineData: { mimeType: 'image/jpeg', data: r } }));
                 parts.push({ text: promptText });
-                const response = await fetch(g.API_URL(g.IMG_MODEL), {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts }], safetySettings: g.SAFETY })
-                });
-                const result = await response.json();
+                const result = await callGemini(g.IMG_MODEL, parts);
                 const imageData = result?.candidates?.[0]?.content?.parts?.find(pp => pp.inlineData)?.inlineData?.data;
-                if (!imageData) throw new Error('No image data received');
+                if (!imageData) throw apiError('EMPTY', 'No image data received');
                 return imageData;
             }
             window.genImageWithRefs = genImageWithRefs;
@@ -1113,19 +1167,16 @@
                 const parts = [];
                 (refs || []).forEach(r => parts.push({ inlineData: { mimeType: 'image/jpeg', data: r } }));
                 parts.push({ text: promptText });
-                const response = await fetch(g.API_URL(g.TXT_MODEL), {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts }], safetySettings: g.SAFETY })
-                });
-                const result = await response.json();
+                const result = await callGemini(g.TXT_MODEL, parts);
                 const txt = result?.candidates?.[0]?.content?.parts?.map(pp => pp.text || '').join('') || '';
-                if (!txt.trim()) throw new Error('No text received');
+                if (!txt.trim()) throw apiError('EMPTY', 'No text received');
                 return txt.trim();
             }
             window.genText = genText;
 
             // ==================== DATA KANONIK (EN, DIKUNCI - hanya label yang diterjemahkan) ====================
             const RATIO_TEXT = {
+                'auto': 'the SAME aspect ratio, framing and crop as IMAGE 1',
                 '4:3': 'landscape 4:3 format',
                 '16:9': 'wide 16:9 cinematic landscape format',
                 '1:1': 'square 1:1 format',
@@ -1179,6 +1230,7 @@
             ];
             const STYLES = {
                 car: [
+                    { val: '', label: 'Tanpa gaya' },
                     { val: 'stance / hellaflush build: aggressively lowered ride height, wide wheels with deep lips and slight negative camber, flush fitment, tucked wheels', label: 'Stance / Ceper' },
                     { val: 'clean OEM+ look: tasteful factory-style upgrades, subtle drop, premium OEM-style wheels, nothing flashy', label: 'Sleeper / OEM+' },
                     { val: 'street racing look: sporty body kit, rear wing, lowered, lightweight racing wheels, aggressive front splitter', label: 'Street Racing' },
@@ -1193,6 +1245,7 @@
                     { val: 'clean minimalist build: debadged, gloss black trim, slight drop, simple monoblock wheels, no decals', label: 'Minimalis Bersih' }
                 ],
                 motorcycle: [
+                    { val: '', label: 'Tanpa gaya' },
                     { val: 'cafe racer build: clip-on handlebars, single seat with a rear cowl hump, round headlight, bar-end mirrors, slim tank, rearset footpegs, exposed engine', label: 'Cafe Racer' },
                     { val: 'scrambler build: high-mounted exhaust with heat shield, knobby dual-sport tires, flat bench seat, wide handlebars, headlight grille, fork gaiters', label: 'Scrambler' },
                     { val: 'bobber build: chopped rear fender, solo sprung seat, fat tires, low stance, minimal bodywork, blacked-out finish', label: 'Bobber' },
@@ -1346,7 +1399,7 @@
                 return `Keep the ORIGINAL background, environment, camera angle, framing, perspective, lighting direction, shadows and reflections of IMAGE 1 exactly as they are - the result must look like the same photograph with only the described changes applied to the ${kind}. `;
             }
             function tailText(sel) {
-                return `${PLATE_TEXT[sel.plate] || PLATE_TEXT.keep} Photorealistic, sharp, professional automotive photography quality, correct scale and physically plausible fitment. ${RATIO_TEXT[sel.ratio] || RATIO_TEXT['4:3']}. No text overlay, no watermark.`;
+                return `${PLATE_TEXT[sel.plate] || PLATE_TEXT.keep} Photorealistic, sharp, professional automotive photography quality, correct scale and physically plausible fitment. ${RATIO_TEXT[sel.ratio] || RATIO_TEXT.auto}. No text overlay, no watermark.`;
             }
             const VAR_HINTS = ['balanced, tasteful execution', 'bolder, more aggressive execution', 'subtle OEM-plus execution', 'show-level, maximal execution', 'daily-driver friendly execution', 'premium elegant execution'];
 
@@ -1375,7 +1428,9 @@
                     `Change ONLY the paint / wrap of this ${kind}: ${color} with a ${sel.finish || 'high-gloss'} finish, applied to ${sel.area || 'the entire body'}. ` +
                     (sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '') +
                     `Keep the wheels, trim, glass, lights, badges, stance and every other part identical to the reference. Reflections and highlights must behave realistically for that finish. ` +
-                    sceneText(v, sel) + tailText(sel);
+                    (pick && pick.angle
+                        ? `Then render the recolored ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the new paint / wrap must be consistent from this viewpoint. ` + angleEnvText(sel)
+                        : sceneText(v, sel)) + tailText(sel);
             };
             window.buildScenePrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
@@ -1409,14 +1464,15 @@
                     `</div>`;
             }
             function typedGroup(attrs, byType, opts) {
+                const rnd = opts.random ? `<button type="button" class="option-btn" data-val="__random">Acak</button>` : '';
                 return `<div ${attrs}>` +
-                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + byType.car.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
-                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + rnd + byType.car.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + rnd + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
                     `</div>`;
             }
             function sceneSelect(p) {
                 return `<select id="${p}-scene-select" class="ams-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white mt-2 hidden">` +
-                    SCENES.map(s => `<option value="${window.escHtml(s.val)}">${s.label}</option>`).join('') + `</select>`;
+                    SCENES.map(s => `<option value="${window.escHtml(s.val)}" data-i18n-dyn>${s.label}</option>`).join('') + `</select>`;
             }
             window.DYN_LABELS.en = Object.assign(window.DYN_LABELS.en, {
                 'Studio Hitam': 'Black Studio', 'Studio Putih': 'White Studio', 'Showroom': 'Showroom', 'Garasi Industrial': 'Industrial Garage', 'Rooftop Kota': 'City Rooftop', 'Jalan Neon Malam': 'Neon Night Street', 'Jalan Basah Hujan': 'Wet Rainy Street', 'Pantai Golden Hour': 'Golden Hour Beach',
@@ -1434,8 +1490,8 @@
                 for (const s of cfg.steps) {
                     stepsHtml += `<div class="card">${stepHead(s.titleKey)}`;
                     if (s.hintKey) stepsHtml += `<p class="text-xs text-gray-400 mb-2" data-i18n="${s.hintKey}"></p>`;
-                    if (s.selectAll) stepsHtml += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[32px]" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[32px]" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
-                    if (s.type === 'typed') stepsHtml += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols });
+                    if (s.selectAll) stepsHtml += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[44px] px-2" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[44px] px-2" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
+                    if (s.type === 'typed') stepsHtml += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random });
                     else stepsHtml += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
                     if (s.customInput) stepsHtml += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
                     stepsHtml += `</div>`;
@@ -1472,7 +1528,7 @@
                                 <div class="grid grid-cols-2 gap-3 mt-3">
                                     <div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.ratio"></p>
-                                        <div class="grid grid-cols-3 gap-1.5" data-ratio-group>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map((r, i) => `<button type="button" class="option-btn${i === 0 ? ' selected' : ''}" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
+                                        <div class="grid grid-cols-4 gap-1.5" data-ratio-group><button type="button" class="option-btn selected" data-val="auto" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.ratio-auto"></span></button>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map(r => `<button type="button" class="option-btn" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
                                     </div>
                                     <div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.plate"></p>
@@ -1527,7 +1583,12 @@
                         const key = bulk.dataset.selAll || bulk.dataset.selNone;
                         const g = host.querySelector(`[data-group="${key}"]`); if (!g) return;
                         const scope = g.dataset.typed === '1' ? g.querySelector(`[data-for="${currentType}"]`) : g;
-                        scope.querySelectorAll('.option-btn').forEach(b => b.classList.toggle('selected', bulk.hasAttribute('data-sel-all')));
+                        let picked = 0;
+                        scope.querySelectorAll('.option-btn').forEach(b => {
+                            const on = bulk.hasAttribute('data-sel-all') && b.dataset.val !== '__random' && picked < 10;
+                            if (on) picked++;
+                            b.classList.toggle('selected', on);
+                        });
                         return;
                     }
                     const btn = e.target.closest('.option-btn');
@@ -1578,7 +1639,7 @@
                     sel.sceneMode = sm ? sm.dataset.val : 'keep';
                     const sceneSel = document.getElementById(`${p}-scene-select`);
                     sel.scene = sceneSel ? sceneSel.value : '';
-                    sel.ratio = (host.querySelector('[data-ratio-group] .option-btn.selected') || {}).dataset?.val || '4:3';
+                    sel.ratio = (host.querySelector('[data-ratio-group] .option-btn.selected') || {}).dataset?.val || 'auto';
                     sel.plate = (host.querySelector('[data-plate-group] .option-btn.selected') || {}).dataset?.val || 'keep';
                     const cg = host.querySelector('[data-count-group] .option-btn.selected');
                     sel.count = cg ? Number(cg.dataset.val) : 1;
@@ -1636,7 +1697,7 @@
                 }
 
                 // --- kartu hasil ---
-                const spinnerCard = (index, cap) => `<div id="${p}-card-${index}" class="result-card"><span class="image-counter">#${index}</span><div class="spin-box"><i class="fas fa-circle-notch fa-spin text-2xl"></i><span data-i18n="st.generating"></span>${cap ? `<span class="text-slate-400">${window.escHtml(cap)}</span>` : ''}</div></div>`;
+                const spinnerCard = (index, cap) => `<div id="${p}-card-${index}" class="result-card"><span class="image-counter">#${index}</span><div class="spin-box"><i class="fas fa-circle-notch fa-spin text-2xl"></i><span data-i18n="st.generating"></span>${cap ? `<span class="text-slate-400" data-i18n-dyn>${window.escHtml(cap)}</span>` : ''}</div></div>`;
                 const cardInner = (index, r) => `
                     <span class="image-counter">#${index}</span>
                     <img src="data:image/png;base64,${r.b64}" alt="#${index}">
@@ -1650,60 +1711,76 @@
                         <button class="icon-btn" style="background:#7c3aed;" data-action="save" data-index="${index - 1}" data-i18n-title="st.save"><i class="fas fa-bookmark"></i></button>
                         <button class="icon-btn" style="background:#0f766e;" data-action="use" data-index="${index - 1}" data-i18n-title="st.use"><i class="fas fa-car-side"></i></button>
                     </div>`;
-                function renderSuccessful() {
-                    results = results.filter(Boolean);
-                    grid.innerHTML = results.map((r, i) => `<div id="${p}-card-${i + 1}" class="result-card">${cardInner(i + 1, r)}</div>`).join('');
-                    dlAll.classList.toggle('hidden', results.length === 0);
+                const errorCard = (index, cap, errKey) => `
+                    <span class="image-counter">#${index}</span>
+                    <div class="spin-box" style="color:#fca5a5;aspect-ratio:auto;min-height:180px;padding:1rem;">
+                        <i class="fas fa-triangle-exclamation text-2xl"></i>
+                        <span class="text-center" style="max-width:320px;">${window.escHtml(t(errKey))}</span>
+                        ${cap ? `<span class="text-slate-400" data-i18n-dyn>${window.escHtml(cap)}</span>` : ''}
+                        <button type="button" class="btn-primary rounded-lg px-4 text-xs font-semibold mt-1" data-action="retry" data-index="${index - 1}" style="min-height:44px;"><i class="fas fa-rotate mr-1"></i><span data-i18n="st.regen"></span></button>
+                    </div>`;
+                let lastRun = null;   // { picks, sel, vehicle, refList, refB64 }
+                async function genOne(index) {
+                    const { picks, sel, vehicle, refList, refB64 } = lastRun;
+                    const pk = picks[index - 1];
+                    const promptText = cfg.promptFn(sel, vehicle, pk, refList);
+                    const b64 = await genImageWithRefs(promptText, refB64);
+                    results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], photos: vehicle.photos.slice(), kind: kindOf(vehicle), filename: `${p}-${index}.png` };
+                    const card = document.getElementById(`${p}-card-${index}`);
+                    if (card) { card.innerHTML = cardInner(index, results[index - 1]); if (window._i18nApplyNow) window._i18nApplyNow(); }
+                }
+                // Jalankan indeks (0-based) dengan pool 3 request; retry maks 3x hanya untuk error jaringan/server/limit
+                async function runPicks(indices) {
+                    const POOL = 3, failed = {};
+                    let attempt = 0, pending = indices.slice();
+                    while (pending.length && attempt < 3) {
+                        attempt++;
+                        if (attempt > 1) await new Promise(r => setTimeout(r, 2500 * (attempt - 1)));
+                        const queue = pending.slice(), next = [];
+                        await Promise.all(Array.from({ length: Math.min(POOL, queue.length) }, async () => {
+                            while (queue.length) {
+                                const i = queue.shift();
+                                try { await genOne(i + 1); delete failed[i]; }
+                                catch (err) { failed[i] = err; window.logDebug(p + '-gen', err); if (window.AMS_RETRYABLE(err.code)) next.push(i); }
+                            }
+                        }));
+                        pending = next;
+                    }
+                    const failedIdx = Object.keys(failed).map(Number);
+                    failedIdx.forEach(i => {
+                        const card = document.getElementById(`${p}-card-${i + 1}`);
+                        if (card) card.innerHTML = errorCard(i + 1, lastRun.picks[i].caption, window.genErrorKey(failed[i]));
+                    });
+                    dlAll.classList.toggle('hidden', results.filter(Boolean).length === 0);
                     if (window._i18nApplyNow) window._i18nApplyNow();
+                    if (failedIdx.length === indices.length) await window.uiNotify(t(window.genErrorKey(failed[failedIdx[0]])));
+                    else if (failedIdx.length) await window.uiNotify(t('err.gen-partial').replace('{n}', failedIdx.length).replace('{m}', indices.length));
                 }
 
                 genBtn.addEventListener('click', async () => {
                     if (busy) return;
-                    const vehicle = await picker.getVehicle();
-                    if (!vehicle) { await window.uiNotify(t('err.no-vehicle')); return; }
-                    const sel = readSel();
-                    const errKey = cfg.validate ? cfg.validate(sel) : null;
-                    if (errKey) { await window.uiNotify(t(errKey)); return; }
-                    const picks = cfg.makePicks(sel, vehicle);
-                    if (!picks.length) { await window.uiNotify(t(cfg.emptyPickKey || 'err.gen-failed')); return; }
                     busy = true;
                     genBtn.disabled = true;
-                    results = [];
-                    emptyState.classList.add('hidden');
-                    dlAll.classList.add('hidden');
-                    grid.innerHTML = picks.map((pk, i) => spinnerCard(i + 1, pk.caption)).join('');
-                    if (window._i18nApplyNow) window._i18nApplyNow();
-                    const refList = cfg.refs ? refs.map(r => ({ type: r.type, b64: r.b64 })) : [];
-                    const refB64 = [...vehicle.photos, ...refList.map(r => r.b64)];
-
-                    async function genOne(index) {
-                        const pk = picks[index - 1];
-                        const promptText = cfg.promptFn(sel, vehicle, pk, refList);
-                        const b64 = await genImageWithRefs(promptText, refB64);
-                        results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], kind: kindOf(vehicle), filename: `${p}-${index}.png` };
-                        const card = document.getElementById(`${p}-card-${index}`);
-                        if (card) { card.innerHTML = cardInner(index, results[index - 1]); if (window._i18nApplyNow) window._i18nApplyNow(); }
+                    try {
+                        const vehicle = await picker.getVehicle();
+                        if (!vehicle) { await window.uiNotify(t('err.no-vehicle')); return; }
+                        const sel = readSel();
+                        const errKey = cfg.validate ? cfg.validate(sel, cfg.refs ? refs.length : 0) : null;
+                        if (errKey) { await window.uiNotify(t(errKey)); return; }
+                        const picks = cfg.makePicks(sel, vehicle);
+                        if (!picks.length) { await window.uiNotify(t(cfg.emptyPickKey || 'err.gen-failed')); return; }
+                        results = [];
+                        emptyState.classList.add('hidden');
+                        dlAll.classList.add('hidden');
+                        grid.innerHTML = picks.map((pk, i) => spinnerCard(i + 1, pk.caption)).join('');
+                        if (window._i18nApplyNow) window._i18nApplyNow();
+                        const refList = cfg.refs ? refs.map(r => ({ type: r.type, b64: r.b64 })) : [];
+                        lastRun = { picks, sel, vehicle, refList, refB64: [...vehicle.photos, ...refList.map(r => r.b64)] };
+                        await runPicks(picks.map((_, i) => i));
+                    } finally {
+                        busy = false;
+                        genBtn.disabled = false;
                     }
-                    let attempt = 0;
-                    while (attempt < 3) {
-                        attempt++;
-                        await Promise.allSettled(picks.map((_, i) => results[i]
-                            ? Promise.resolve()
-                            : genOne(i + 1).catch(err => {
-                                const card = document.getElementById(`${p}-card-${i + 1}`);
-                                if (card) card.innerHTML = '';
-                                window.logDebug(p + '-gen', err);
-                            })
-                        ));
-                        if (results.filter(Boolean).length > 0) break;
-                    }
-                    renderSuccessful();
-                    if (results.length === 0) {
-                        emptyState.classList.remove('hidden');
-                        await window.uiNotify(t('err.gen-failed'));
-                    }
-                    busy = false;
-                    genBtn.disabled = false;
                 });
 
                 grid.addEventListener('click', async (e) => {
@@ -1711,6 +1788,14 @@
                     if (!btn) return;
                     const action = btn.dataset.action;
                     const idx = Number(btn.dataset.index);
+                    if (action === 'retry') {
+                        if (busy || !lastRun || !lastRun.picks[idx]) return;
+                        busy = true; genBtn.disabled = true;
+                        const card = document.getElementById(`${p}-card-${idx + 1}`);
+                        if (card) { card.innerHTML = spinnerCard(idx + 1, lastRun.picks[idx].caption).replace(/^<div[^>]*>|<\/div>$/g, ''); if (window._i18nApplyNow) window._i18nApplyNow(); }
+                        try { await runPicks([idx]); } finally { busy = false; genBtn.disabled = false; }
+                        return;
+                    }
                     const r = results[idx];
                     if (!r) return;
                     if (action === 'preview') window.showImagePreview('data:image/png;base64,' + r.b64);
@@ -1721,24 +1806,25 @@
                     if (action === 'use') window.showContinueModal(r.b64, r.kind);
                     if (action === 'regen') {
                         if (busy) return;
-                        busy = true;
+                        busy = true; genBtn.disabled = true;
                         const card = document.getElementById(`${p}-card-${idx + 1}`);
                         card.innerHTML = spinnerCard(idx + 1, r.caption).replace(/^<div[^>]*>|<\/div>$/g, '');
                         if (window._i18nApplyNow) window._i18nApplyNow();
                         try {
-                            const vehicle = await picker.getVehicle();
+                            // Pakai foto kendaraan yang dipakai saat prompt dibuat (penomoran IMAGE n tetap cocok)
+                            const photos = (r.photos && r.photos.length) ? r.photos : [r.before];
                             const refList = cfg.refs ? refs.map(x => ({ type: x.type, b64: x.b64 })) : [];
-                            const v = vehicle || { type: r.kind, name: '', notes: '', photos: [r.before] };
-                            const b64 = await genImageWithRefs(r.prompt, [...v.photos, ...refList.map(x => x.b64)]);
+                            const b64 = await genImageWithRefs(r.prompt, [...photos, ...refList.map(x => x.b64)]);
                             results[idx] = Object.assign({}, r, { b64 });
                             card.innerHTML = cardInner(idx + 1, results[idx]);
                         } catch (err) {
                             window.logDebug(p + '-regen', err);
                             card.innerHTML = cardInner(idx + 1, r);
-                            await window.uiNotify(t('err.gen-failed'));
+                            await window.uiNotify(t(window.genErrorKey(err)));
+                        } finally {
+                            if (window._i18nApplyNow) window._i18nApplyNow();
+                            busy = false; genBtn.disabled = false;
                         }
-                        if (window._i18nApplyNow) window._i18nApplyNow();
-                        busy = false;
                     }
                 });
 
@@ -1818,11 +1904,24 @@
             };
 
             // ==================== INSTANSIASI TAB STUDIO ====================
+            window.DYN_LABELS.en = Object.assign({}, window.CHIP_LABELS.en || {}, window.DYN_LABELS.en);
             const LABEL_OF = {};
             [].concat(SCENES, LIGHTS, TIMES, STYLES.car, STYLES.motorcycle, PARTS.car, PARTS.motorcycle, FINISHES, COLORS, AREAS, ANGLES.car, ANGLES.motorcycle)
                 .forEach(x => { LABEL_OF[x.val] = x.label; });
             const VAR_CAPTIONS = ['Seimbang', 'Lebih agresif', 'Subtle OEM+', 'Level kontes', 'Ramah harian', 'Elegan premium'];
             Object.assign(window.DYN_LABELS.en, { 'Seimbang': 'Balanced', 'Lebih agresif': 'More aggressive', 'Subtle OEM+': 'Subtle OEM+', 'Level kontes': 'Show level', 'Ramah harian': 'Daily friendly', 'Elegan premium': 'Premium elegant' });
+            // Angle hasil: '__random' = sel.count angle acak tanpa ulang (shuffle-bag); selain itu angle terpilih (maks 10)
+            function anglePicks(sel, vehicle) {
+                const chosen = sel.outAngle || [];
+                if (!chosen.length) return null;
+                const kind = vehicle && vehicle.type === 'motorcycle' ? 'motorcycle' : 'car';
+                if (chosen.includes('__random')) {
+                    let pool = [];
+                    while (pool.length < sel.count) pool = pool.concat(shuffled(ANGLES[kind].map(a => a.val)));
+                    return pool.slice(0, sel.count);
+                }
+                return chosen.slice(0, 10);
+            }
             function shuffled(arr) {
                 const a = arr.slice();
                 for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
@@ -1832,18 +1931,19 @@
             const modifHost = createStudioTab({
                 tab: 'modif', prefix: 'md', icon: 'screwdriver-wrench', refs: true, sceneMode: true, countMode: 'count',
                 steps: [
-                    { key: 'style', titleKey: 'md.step-style', type: 'typed', byType: STYLES, cols: 'grid-cols-2' },
+                    { key: 'style', titleKey: 'md.step-style', hintKey: 'md.style-hint', type: 'typed', byType: STYLES, cols: 'grid-cols-2' },
                     { key: 'parts', titleKey: 'md.step-parts', hintKey: 'md.parts-hint', type: 'typed', byType: PARTS, multi: true, cols: 'grid-cols-2' },
-                    { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true }
+                    { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true, random: true }
                 ],
-                makePicks: (sel) => {
-                    const angles = (sel.outAngle || []).slice(0, 10);
-                    if (angles.length) return angles.map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
+                makePicks: (sel, vehicle) => {
+                    const angles = anglePicks(sel, vehicle);
+                    if (angles) return angles.map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
                     return Array.from({ length: sel.count }, (_, i) => ({
                         variant: sel.count > 1 ? VAR_HINTS[i % VAR_HINTS.length] : '',
                         caption: sel.count > 1 ? VAR_CAPTIONS[i % VAR_CAPTIONS.length] : ''
                     }));
                 },
+                validate: (sel, refCount) => (!sel.style && !(sel.parts || []).length && !refCount && !sel.extra) ? 'err.no-part' : null,
                 promptFn: window.buildModifPrompt
             });
 
@@ -1852,9 +1952,15 @@
                 steps: [
                     { key: 'finish', titleKey: 'wr.step-finish', type: 'chips', options: FINISHES, cols: 'grid-cols-3' },
                     { key: 'color', titleKey: 'wr.step-color', type: 'chips', options: COLORS, cols: 'grid-cols-3', customInput: { phKey: 'wr.custom-ph' } },
-                    { key: 'area', titleKey: 'wr.step-area', type: 'chips', options: AREAS, cols: 'grid-cols-2' }
+                    { key: 'area', titleKey: 'wr.step-area', type: 'chips', options: AREAS, cols: 'grid-cols-2' },
+                    { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true, random: true }
                 ],
-                makePicks: (sel) => Array.from({ length: sel.count }, () => ({ caption: sel.colorCustom || LABEL_OF[sel.color] || '' })),
+                makePicks: (sel, vehicle) => {
+                    const colorCap = sel.colorCustom || LABEL_OF[sel.color] || '';
+                    const angles = anglePicks(sel, vehicle);
+                    if (angles) return angles.map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
+                    return Array.from({ length: sel.count }, () => ({ caption: colorCap }));
+                },
                 promptFn: window.buildColorPrompt
             });
 
@@ -1959,10 +2065,11 @@
                     } catch (e) {
                         window.logDebug('ks', e);
                         emptyEl.classList.remove('hidden');
-                        await window.uiNotify(t('err.ks-failed'));
+                        await window.uiNotify(t(e && e.code && e.code !== 'EMPTY' ? window.genErrorKey(e) : 'err.ks-failed'));
+                    } finally {
+                        loadingEl.classList.add('hidden');
+                        busy = false; genBtn.disabled = false;
                     }
-                    loadingEl.classList.add('hidden');
-                    busy = false; genBtn.disabled = false;
                 });
 
                 resultsEl.addEventListener('click', async (e) => {
@@ -1993,7 +2100,7 @@
                     grid.innerHTML = items.map((r, i) => `<div class="result-card">
                         <span class="image-counter">#${i + 1}</span>
                         <img src="data:image/png;base64,${r.b64}" alt="#${i + 1}">
-                        <p class="cap pt-2"><span data-i18n="nav.${window.escHtml(r.tab || 'modif')}"></span>${r.caption ? ` &middot; <span data-i18n-dyn>${window.escHtml(r.caption)}</span>` : ''} &middot; ${new Date(r.createdAt || 0).toLocaleDateString()}</p>
+                        <p class="cap pt-2"><span data-i18n="nav.${window.escHtml(r.tab || 'modif')}"></span>${r.caption ? ` &middot; <span data-i18n-dyn>${window.escHtml(r.caption)}</span>` : ''} &middot; ${new Date(r.createdAt || 0).toLocaleDateString(window.getLang() === 'id' ? 'id-ID' : 'en-US')}</p>
                         <div class="result-card-actions">
                             <button class="icon-btn" style="background:#3b82f6;" data-action="preview" data-id="${r.id}" data-i18n-title="st.preview"><i class="fas fa-eye"></i></button>
                             <button class="icon-btn" style="background:#f59e0b;" data-action="compare" data-id="${r.id}" data-i18n-title="st.compare"><i class="fas fa-left-right"></i></button>
@@ -2021,6 +2128,7 @@
                     }
                 });
                 document.addEventListener('ams-results-changed', render);
+                document.addEventListener('app-lang-changed', render);
                 render();
             })();
             // === END TAB: HASIL TERSIMPAN ===
@@ -2081,8 +2189,22 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.1';
+            window.APP_VERSION = '1.2';
             window.CHANGELOG = [
+                { version: '1.2', date: '7 Okt 2026', changes: [
+                    { id: 'Modif Studio: opsi "Tanpa gaya" (default) - cocok kalau cuma mau coba velg referensi atau satu part saja tanpa arahan gaya',
+                      en: 'Modif Studio: "No style" option (default) - for trying just reference wheels or a single part without any style direction' },
+                    { id: 'Warna & Wrap: step "Angle hasil" (1 / beberapa / semua angle) seperti di Modif Studio',
+                      en: 'Color & Wrap: "Output angle" step (1 / several / all angles) like in Modif Studio' },
+                    { id: 'Chip "Acak" di pemilih angle Modif Studio & Warna: angle acak sejumlah "Jumlah hasil", tanpa pengulangan',
+                      en: '"Random" chip in the Modif Studio & Color angle picker: random angles as many as "Number of results", no repeats' },
+                    { id: 'Pesan error generate kini spesifik (kuota, koneksi, filter keamanan, server) dan kartu yang gagal punya tombol Ulangi - tidak lagi hilang diam-diam',
+                      en: 'Generation errors are now specific (quota, connection, safety filter, server) and failed cards get a Retry button - no more silent drops' },
+                    { id: 'Rasio foto default "Ikut foto" (foto portrait tidak lagi dipaksa 4:3); label teks di bawah ikon aksi; dropdown suasana & caption ikut bahasa EN',
+                      en: 'Default aspect ratio "Same as photo" (portrait photos no longer forced to 4:3); text labels under action icons; scene dropdown & captions follow EN' },
+                    { id: 'Perbaikan: pemilih kendaraan otomatis kembali ke "Dari Garasi" setelah kendaraan pertama disimpan; penyimpanan penuh kini memberi pesan; Esc menutup dialog',
+                      en: 'Fix: vehicle picker returns to "From Garage" after the first vehicle is saved; full storage now shows a message; Esc closes dialogs' }
+                ] },
                 { version: '1.1', date: '7 Okt 2026', changes: [
                     { id: 'Modif Studio: step "Angle hasil" - pilih 1 atau semua angle, hasil modif langsung dirender dari sudut pandang itu (kosongkan = ikut foto asli)',
                       en: 'Modif Studio: "Output angle" step - pick 1 or all angles, the modified result is rendered from those viewpoints (empty = same as the original photo)' },
