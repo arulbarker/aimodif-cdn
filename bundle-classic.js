@@ -21,6 +21,21 @@
                     'nav.section-bantuan': 'Bantuan AI',
                     'nav.konsultan': 'Konsultan Modif',
                     'nav.logout': 'Keluar',
+                    'nav.cepat': 'Cepat',
+                    'nav.advanced': 'Mode Lanjutan',
+                    'nav.simple': 'Mode Simpel',
+                    'qk.title': 'Cepat',
+                    'qk.subtitle': 'Upload foto kendaraan, tulis mau diapakan, pilih angle. Acak = 10 angle berbeda, satu angle = 5 variasi.',
+                    'qk.prompt': 'Mau dimodif seperti apa?',
+                    'qk.prompt-ph': 'contoh: ganti velg 19 inci hitam, body kit lebar, stiker racing merah',
+                    'qk.step-angle': 'Angle hasil',
+                    'qk.angle-hint': 'Acak = 10 angle berbeda, 1 hasil per angle. Pilih satu angle = 5 variasi dari sudut itu.',
+                    'qk.generate-random': 'Generate 10 hasil',
+                    'qk.generate-single': 'Generate 5 variasi',
+                    'qk.tip1': 'Tulis instruksi spesifik: ukuran velg, warna, part yang diganti. Boleh bahasa Indonesia.',
+                    'qk.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
+                    'qk.tip3': 'Butuh pilihan gaya, part, latar, atau rasio? Buka Mode Lanjutan di menu.',
+                    'err.quick-empty': 'Tulis instruksi modifikasi atau tambahkan minimal satu foto referensi.',
                     'tips.title': 'Tips',
                     'btn.cancel': 'Batal',
                     'btn.delete': 'Hapus',
@@ -213,6 +228,21 @@
                     'nav.section-bantuan': 'AI Assistant',
                     'nav.konsultan': 'Mod Consultant',
                     'nav.logout': 'Sign out',
+                    'nav.cepat': 'Quick',
+                    'nav.advanced': 'Advanced Mode',
+                    'nav.simple': 'Simple Mode',
+                    'qk.title': 'Quick',
+                    'qk.subtitle': 'Upload a vehicle photo, describe the mod, pick an angle. Random = 10 different angles, one angle = 5 variations.',
+                    'qk.prompt': 'What should be modified?',
+                    'qk.prompt-ph': 'e.g. 19-inch black wheels, wide body kit, red racing stripes',
+                    'qk.step-angle': 'Output angle',
+                    'qk.angle-hint': 'Random = 10 different angles, 1 result each. Pick one angle = 5 variations from that viewpoint.',
+                    'qk.generate-random': 'Generate 10 results',
+                    'qk.generate-single': 'Generate 5 variations',
+                    'qk.tip1': 'Be specific: wheel size, color, parts to replace. Any language works.',
+                    'qk.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
+                    'qk.tip3': 'Need style, parts, backdrop or aspect ratio options? Open Advanced Mode in the menu.',
+                    'err.quick-empty': 'Write a modification request or add at least one reference photo.',
                     'tips.title': 'Tips',
                     'btn.cancel': 'Cancel',
                     'btn.delete': 'Delete',
@@ -695,7 +725,41 @@
 
             const mainTabButtons = document.querySelectorAll('.main-tab-btn');
             const mainContentPanels = document.querySelectorAll('.main-content-panel');
+            window.resolveInitialMode = function (stored, garageCount) {
+                if (stored === 'simple' || stored === 'advanced') return stored;
+                return garageCount > 0 ? 'advanced' : 'simple';
+            };
+            function getAppMode() {
+                return document.getElementById('nav-advanced').classList.contains('hidden') ? 'simple' : 'advanced';
+            }
+            function setAppMode(mode) {
+                const adv = mode === 'advanced';
+                document.getElementById('nav-advanced').classList.toggle('hidden', !adv);
+                const label = document.getElementById('mode-toggle').querySelector('[data-i18n]');
+                const key = adv ? 'nav.simple' : 'nav.advanced';
+                label.setAttribute('data-i18n', key);
+                label.textContent = t(key);
+                try { localStorage.setItem('ams_mode', mode); } catch (e) { window.logDebug && window.logDebug('mode', e); }
+            }
+            window.getAppMode = getAppMode;
+            window.setAppMode = setAppMode;
+            window.initAppMode = async function () {
+                let stored = null;
+                try { stored = localStorage.getItem('ams_mode'); } catch (e) { }
+                let n = 0;
+                try { n = (await window.vehicleDB.list()).length; } catch (e) { window.logDebug && window.logDebug('mode', e); }
+                const mode = window.resolveInitialMode(stored, n);
+                setAppMode(mode);
+                const active = document.querySelector('.main-tab-btn.active');
+                if (mode === 'simple' && (!active || active.dataset.tab !== 'cepat')) switchTab('cepat');
+            };
+            document.getElementById('mode-toggle').addEventListener('click', () => {
+                const next = getAppMode() === 'advanced' ? 'simple' : 'advanced';
+                setAppMode(next);
+                if (next === 'simple') switchTab('cepat');
+            });
             function switchTab(tabName) {
+                if (tabName !== 'cepat' && getAppMode() === 'simple') setAppMode('advanced');
                 mainTabButtons.forEach(btn => btn.classList.remove('active'));
                 const sidebarBtn = document.querySelector(`.main-tab-btn[data-tab="${tabName}"]`);
                 if (sidebarBtn) sidebarBtn.classList.add('active');
@@ -706,7 +770,7 @@
                 document.dispatchEvent(new CustomEvent('ams-tab-changed', { detail: { tab: tabName } }));
             }
             window.switchTab = switchTab;
-            mainTabButtons.forEach(button => button.addEventListener('click', () => switchTab(button.dataset.tab)));
+            mainTabButtons.forEach(button => { if (button.dataset.tab) button.addEventListener('click', () => switchTab(button.dataset.tab)); });
             document.addEventListener('click', function (e) {
                 const pill = e.target.closest('[data-goto]');
                 if (!pill) return;
@@ -745,6 +809,7 @@
                     overlay.classList.add('hidden');
                     mainApp.classList.remove('hidden');
                     document.getElementById('user-name').textContent = nama;
+                    if (window.initAppMode) window.initAppMode();
                     if (!sesInterval) sesInterval = setInterval(jagaSesi, 60000);
                 }
                 async function jagaSesi() {
@@ -1042,6 +1107,7 @@
                     notify();
                 }
                 srcGroup.addEventListener('click', (e) => { const b = e.target.closest('[data-src]'); if (b) setSrc(b.dataset.src); });
+                if (o.uploadOnly) { srcGroup.classList.add('hidden'); setSrc('upload'); }
                 typeGroup.addEventListener('click', (e) => {
                     const b = e.target.closest('.option-btn'); if (!b) return;
                     typeGroup.querySelectorAll('.option-btn').forEach(x => x.classList.remove('selected'));
@@ -1075,7 +1141,7 @@
                             <p class="flex-1" data-i18n="st.no-vehicle"></p>
                             <button class="btn-primary rounded-lg px-3 py-2 text-xs font-semibold whitespace-nowrap" data-goto="garasi"><span data-i18n="nav.garasi"></span></button>
                         </div>`;
-                        if (!autoPicked) { autoPicked = true; setSrc('upload'); }
+                        if (!o.uploadOnly && !autoPicked) { autoPicked = true; setSrc('upload'); }
                     } else {
                         if (autoPicked && !upload && src === 'upload') { autoPicked = false; setSrc('garage'); }
                         strip.innerHTML = `<div class="vehicle-card active">
@@ -1454,6 +1520,20 @@
                     tailText(sel);
             };
 
+            window.buildQuickPrompt = function (sel, v, pick, refs) {
+                const kind = kindOf(v);
+                const request = sel.extra
+                    ? `Requested modification from the owner (highest priority): ${sel.extra}. `
+                    : `Apply the changes shown in the reference photos to the subject ${kind}. `;
+                const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. ` : '';
+                const viewpoint = pick && pick.angle
+                    ? `Then render the MODIFIED ${kind} from this viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. `
+                    : '';
+                return lockText(v) + refsText(v, refs) + request + variation +
+                    `Everything NOT requested stays exactly as in the reference photos (same paint color unless a color change is requested, same body, same ride height unless requested). Render every change realistically fitted to this specific ${kind}. ` +
+                    viewpoint + angleEnvText({ sceneMode: 'keep' }) + tailText({ plate: 'keep', ratio: 'auto' });
+            };
+
             // ==================== FACTORY: TAB STUDIO ====================
             function chipGroup(attrs, options, opts) {
                 const o = opts || {};
@@ -1464,10 +1544,11 @@
                     `</div>`;
             }
             function typedGroup(attrs, byType, opts) {
-                const rnd = opts.random ? `<button type="button" class="option-btn" data-val="__random">Acak</button>` : '';
+                const rnd = opts.random ? `<button type="button" class="option-btn${opts.multi ? '' : ' selected'}" data-val="__random">Acak</button>` : '';
+                const first = (i) => (!opts.multi && !opts.random && i === 0) ? ' selected' : '';
                 return `<div ${attrs}>` +
-                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + rnd + byType.car.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
-                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + rnd + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${(!opts.multi && i === 0) ? ' selected' : ''}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + rnd + byType.car.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + rnd + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
                     `</div>`;
             }
             function sceneSelect(p) {
@@ -1486,46 +1567,36 @@
                 const nextStep = () => ++step;
                 const stepHead = (key) => `<div class="flex items-center gap-3 mb-4"><span class="step-num">${nextStep()}</span><h3 class="font-semibold text-gray-800" data-i18n="${key}"></h3></div>`;
 
-                let stepsHtml = '';
-                for (const s of cfg.steps) {
-                    stepsHtml += `<div class="card">${stepHead(s.titleKey)}`;
-                    if (s.hintKey) stepsHtml += `<p class="text-xs text-gray-400 mb-2" data-i18n="${s.hintKey}"></p>`;
-                    if (s.selectAll) stepsHtml += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[44px] px-2" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[44px] px-2" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
-                    if (s.type === 'typed') stepsHtml += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random });
-                    else stepsHtml += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
-                    if (s.customInput) stepsHtml += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
-                    stepsHtml += `</div>`;
-                }
-                const refsHtml = cfg.refs ? `<div class="card">${stepHead('st.refs-title')}
+                const sections = {
+                    steps: () => {
+                        let h = '';
+                        for (const s of cfg.steps) {
+                            h += `<div class="card">${stepHead(s.titleKey)}`;
+                            if (s.hintKey) h += `<p class="text-xs text-gray-400 mb-2" data-i18n="${s.hintKey}"></p>`;
+                            if (s.selectAll) h += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[44px] px-2" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[44px] px-2" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
+                            if (s.type === 'typed') h += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random });
+                            else h += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
+                            if (s.customInput) h += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
+                            h += `</div>`;
+                        }
+                        return h;
+                    },
+                    refs: () => cfg.refs ? `<div class="card">${stepHead('st.refs-title')}
                         <p class="text-xs text-gray-400 mb-2" data-i18n="st.refs-hint"></p>
                         <div id="${p}-refs" class="grid grid-cols-3 gap-2"></div>
                         <button type="button" id="${p}-ref-add" class="btn-secondary w-full rounded-lg py-2.5 text-xs font-semibold mt-2"><i class="fas fa-plus mr-1"></i><span data-i18n="st.ref-add"></span></button>
                         <input id="${p}-ref-file" type="file" accept="image/*,.heic" class="hidden">
-                    </div>` : '';
-                const sceneHtml = cfg.sceneMode ? `<div class="card">${stepHead('st.scene-mode')}
+                    </div>` : '',
+                    scene: () => cfg.sceneMode ? `<div class="card">${stepHead('st.scene-mode')}
                         <div class="grid grid-cols-1 gap-2" data-scene-mode>
                             <button type="button" class="option-btn selected" data-val="keep" data-no-i18n><i class="fas fa-image mr-1"></i><span data-i18n="st.scene-keep"></span></button>
                             <button type="button" class="option-btn" data-val="studio" data-no-i18n><i class="fas fa-lightbulb mr-1"></i><span data-i18n="st.scene-studio"></span></button>
                             <button type="button" class="option-btn" data-val="custom" data-no-i18n><i class="fas fa-mountain-sun mr-1"></i><span data-i18n="st.scene-custom"></span></button>
                         </div>${sceneSelect(p)}
-                    </div>` : '';
-                const extraHead = stepHead('st.extra');
-                const countHtml = cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
-                        <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
-                    </div>` : '';
-
-                host.innerHTML = `
-                    <h2 class="text-lg font-bold text-gray-800 mb-1" data-i18n="${cfg.prefix}.title"></h2>
-                    <p class="text-sm text-gray-500 mb-4" data-i18n="${cfg.prefix}.subtitle"></p>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        <div class="lg:col-span-1 space-y-6">
-                            <div id="${p}-picker"></div>
-                            ${stepsHtml}
-                            ${refsHtml}
-                            ${sceneHtml}
-                            <div class="card">${extraHead}
-                                <textarea id="${p}-extra" rows="2" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="st.extra-ph"></textarea>
-                                <div class="grid grid-cols-2 gap-3 mt-3">
+                    </div>` : '',
+                    extra: () => `<div class="card">${stepHead(cfg.extraKey || 'st.extra')}
+                                <textarea id="${p}-extra" rows="${cfg.hideRatioPlate ? 3 : 2}" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="${cfg.extraPhKey || 'st.extra-ph'}"></textarea>
+                                ${cfg.hideRatioPlate ? '' : `<div class="grid grid-cols-2 gap-3 mt-3">
                                     <div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.ratio"></p>
                                         <div class="grid grid-cols-4 gap-1.5" data-ratio-group><button type="button" class="option-btn selected" data-val="auto" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.ratio-auto"></span></button>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map(r => `<button type="button" class="option-btn" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
@@ -1538,9 +1609,22 @@
                                             <button type="button" class="option-btn" data-val="remove" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.plate-remove"></span></button>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            ${countHtml}
+                                </div>`}
+                            </div>`,
+                    count: () => cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
+                        <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
+                    </div>` : ''
+                };
+                const layout = cfg.layout || ['steps', 'refs', 'scene', 'extra', 'count'];
+                const formHtml = layout.map(k => sections[k]()).join('');
+
+                host.innerHTML = `
+                    <h2 class="text-lg font-bold text-gray-800 mb-1" data-i18n="${cfg.prefix}.title"></h2>
+                    <p class="text-sm text-gray-500 mb-4" data-i18n="${cfg.prefix}.subtitle"></p>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        <div class="lg:col-span-1 space-y-6">
+                            <div id="${p}-picker"></div>
+                            ${formHtml}
                             <button id="${p}-generate" class="btn-primary w-full rounded-lg py-3 font-semibold text-sm"><i class="fas fa-wand-magic-sparkles mr-2"></i><span data-i18n="st.generate"></span></button>
                         </div>
                         <div class="lg:col-span-2 space-y-6">
@@ -1565,7 +1649,7 @@
                     </div>`;
 
                 const pickerHost = document.getElementById(`${p}-picker`);
-                const picker = window.mountVehiclePicker(pickerHost, p);
+                const picker = window.mountVehiclePicker(pickerHost, p, cfg.pickerOpts);
                 const grid = document.getElementById(`${p}-grid`);
                 const emptyState = document.getElementById(`${p}-empty`);
                 const dlAll = document.getElementById(`${p}-dl-all`);
@@ -1608,12 +1692,14 @@
                         if (sceneSel) sceneSel.classList.toggle('hidden', btn.dataset.val !== 'custom');
                     }
                     if (group.dataset.group && cfg.onChipChange) cfg.onChipChange(group.dataset.group, btn, host);
+                    refreshGenLabel();
                 });
                 function refreshType(type) {
                     currentType = type || currentType;
                     host.querySelectorAll('[data-typed="1"]').forEach(g => {
                         g.querySelectorAll('[data-for]').forEach(sub => sub.classList.toggle('hidden', sub.dataset.for !== currentType));
                     });
+                    refreshGenLabel();
                 }
                 pickerHost.addEventListener('ams-picker-changed', (e) => refreshType(e.detail.type));
                 picker.currentType().then(refreshType);
@@ -1659,6 +1745,15 @@
                     });
                 };
                 host.setVehicleUpload = (b64, type) => picker.setUpload(b64, type);
+                function refreshGenLabel() {
+                    if (!cfg.generateKey) return;
+                    const span = genBtn.querySelector('[data-i18n]');
+                    if (!span) return;
+                    const key = cfg.generateKey(readSel());
+                    span.setAttribute('data-i18n', key);
+                    span.textContent = t(key);
+                }
+                refreshGenLabel();
 
                 // --- referensi part ---
                 if (cfg.refs) {
@@ -1927,7 +2022,27 @@
                 for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
                 return a;
             }
+            window.quickPicks = function (sel, vehicle) {
+                const kind = vehicle && vehicle.type === 'motorcycle' ? 'motorcycle' : 'car';
+                if (!sel.outAngle || sel.outAngle === '__random') {
+                    return shuffled(ANGLES[kind].map(a => a.val)).slice(0, 10).map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
+                }
+                return VAR_HINTS.slice(0, 5).map((h, i) => ({ angle: sel.outAngle, variant: h, caption: VAR_CAPTIONS[i] }));
+            };
 
+            const cepatHost = createStudioTab({
+                tab: 'cepat', prefix: 'qk', icon: 'bolt', refs: true, sceneMode: false,
+                pickerOpts: { uploadOnly: true },
+                layout: ['extra', 'refs', 'steps'],
+                extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hideRatioPlate: true,
+                steps: [
+                    { key: 'outAngle', titleKey: 'qk.step-angle', hintKey: 'qk.angle-hint', type: 'typed', byType: ANGLES, multi: false, random: true, cols: 'grid-cols-2' }
+                ],
+                generateKey: (sel) => (!sel.outAngle || sel.outAngle === '__random') ? 'qk.generate-random' : 'qk.generate-single',
+                makePicks: (sel, vehicle) => window.quickPicks(sel, vehicle),
+                validate: (sel, refCount) => (!sel.extra && !refCount) ? 'err.quick-empty' : null,
+                promptFn: window.buildQuickPrompt
+            });
             const modifHost = createStudioTab({
                 tab: 'modif', prefix: 'md', icon: 'screwdriver-wrench', refs: true, sceneMode: true, countMode: 'count',
                 steps: [
@@ -1991,7 +2106,7 @@
                 makePicks: (sel) => (sel.angles || []).slice(0, 10).map(a => ({ angle: a, caption: LABEL_OF[a] || '' })),
                 promptFn: window.buildAnglePrompt
             });
-            window.studioHosts = { modif: modifHost, warna: warnaHost, suasana: suasanaHost, angle: angleHost };
+            window.studioHosts = { cepat: cepatHost, modif: modifHost, warna: warnaHost, suasana: suasanaHost, angle: angleHost };
 
             // === TAB: KONSULTAN MODIF (teks - model vision) ===
             (function () {
@@ -2189,8 +2304,14 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.2';
+            window.APP_VERSION = '1.3';
             window.CHANGELOG = [
+                { version: '1.3', date: '8 Okt 2026', changes: [
+                    { id: 'Tab baru "Cepat" jadi layar pembuka: upload foto, tulis instruksi, foto referensi opsional, pilih satu angle (5 variasi) atau Acak (10 angle) - langsung generate',
+                      en: 'New "Quick" tab as the opening screen: upload a photo, write your request, optional reference photos, pick one angle (5 variations) or Random (10 angles) - generate right away' },
+                    { id: 'Tombol "Mode Lanjutan" di menu menampilkan Garasi, Modif Studio, Warna & Wrap, Suasana, Multi-Angle, Konsultan; pilihan diingat di perangkat ini',
+                      en: '"Advanced Mode" button in the menu reveals Garage, Modif Studio, Color & Wrap, Scene, Multi-Angle, Consultant; your choice is remembered on this device' }
+                ] },
                 { version: '1.2', date: '7 Okt 2026', changes: [
                     { id: 'Modif Studio: opsi "Tanpa gaya" (default) - cocok kalau cuma mau coba velg referensi atau satu part saja tanpa arahan gaya',
                       en: 'Modif Studio: "No style" option (default) - for trying just reference wheels or a single part without any style direction' },

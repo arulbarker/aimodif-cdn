@@ -43,7 +43,10 @@
                     <p id="user-name" class="text-xs text-slate-500 mt-2 truncate"></p>
                 </div>
                 <nav class="sidebar-nav p-3 space-y-1">
-                    <button class="main-tab-btn active" data-tab="garasi"><i class="fas fa-warehouse"></i><span data-i18n="nav.garasi">Garasi Saya</span></button>
+                    <button id="mode-toggle" class="main-tab-btn" style="color:#fb923c;"><i class="fas fa-sliders"></i><span data-i18n="nav.advanced">Mode Lanjutan</span></button>
+                    <button class="main-tab-btn active" data-tab="cepat"><i class="fas fa-bolt"></i><span data-i18n="nav.cepat">Cepat</span></button>
+                    <div id="nav-advanced" class="space-y-1 hidden">
+                    <button class="main-tab-btn" data-tab="garasi"><i class="fas fa-warehouse"></i><span data-i18n="nav.garasi">Garasi Saya</span></button>
                     <button class="main-tab-btn" data-tab="tersimpan"><i class="fas fa-bookmark"></i><span data-i18n="nav.tersimpan">Hasil Tersimpan</span></button>
                     <p class="nav-section" data-i18n="nav.section-studio">Studio Modifikasi</p>
                     <button class="main-tab-btn" data-tab="modif"><i class="fas fa-screwdriver-wrench"></i><span data-i18n="nav.modif">Modif Studio</span></button>
@@ -52,6 +55,7 @@
                     <button class="main-tab-btn" data-tab="angle"><i class="fas fa-cube"></i><span data-i18n="nav.angle">Multi-Angle</span></button>
                     <p class="nav-section" data-i18n="nav.section-bantuan">Bantuan AI</p>
                     <button class="main-tab-btn" data-tab="konsultan"><i class="fas fa-lightbulb"></i><span data-i18n="nav.konsultan">Konsultan Modif</span></button>
+                    </div>
                 </nav>
                 <div class="p-3 border-t border-slate-800 flex items-center justify-between gap-2">
                     <div class="flex gap-1">
@@ -71,8 +75,9 @@
                 </header>
 
                 <main>
+                    <div id="content-cepat" class="main-content-panel"></div>
                     <!-- ===== TAB: GARASI ===== -->
-                    <div id="content-garasi" class="main-content-panel">
+                    <div id="content-garasi" class="main-content-panel hidden">
                         <h2 class="text-lg font-bold text-gray-800 mb-1" data-i18n="gr.title">Garasi Saya</h2>
                         <p class="text-sm text-gray-500 mb-4" data-i18n="gr.subtitle">Daftarkan kendaraanmu sekali, lalu pakai di semua studio tanpa upload ulang.</p>
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
