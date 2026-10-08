@@ -159,7 +159,7 @@
                     'an.step-angles': 'Pilih angle',
                     'an.angles-hint': 'Satu hasil per angle yang dipilih (maks 10).',
                     'an.tip1': 'Foto kendaraan utuh dari 3/4 depan menghasilkan angle paling akurat.',
-                    'an.tip2': 'Angle interior hanya untuk mobil. Untuk motor pilih close-up mesin / speedometer.',
+                    'an.tip2': 'Semua angle menampilkan kendaraan utuh seperti foto showroom: depan, samping, belakang kiri-kanan, agak rendah, agak tinggi.',
                     'an.tip3': 'Daftarkan 2-4 foto sisi berbeda di Garasi supaya detail belakang & samping lebih tepat.',
                     'ks.title': 'Konsultan Modif AI',
                     'ks.subtitle': 'AI menganalisis kendaraanmu lalu menyarankan 5 konsep modifikasi lengkap dengan daftar part. Satu klik untuk langsung dirender.',
@@ -366,7 +366,7 @@
                     'an.step-angles': 'Choose angles',
                     'an.angles-hint': 'One result per selected angle (max 10).',
                     'an.tip1': 'A full-vehicle photo from the front 3/4 gives the most accurate angles.',
-                    'an.tip2': 'Interior angles are for cars only. For motorcycles pick engine / speedometer close-ups.',
+                    'an.tip2': 'Every angle shows the whole vehicle like a showroom photo: front, side, rear left-right, slightly low, slightly high.',
                     'an.tip3': 'Register 2-4 photos from different sides in the Garage so rear & side details are more accurate.',
                     'ks.title': 'AI Mod Consultant',
                     'ks.subtitle': 'The AI analyzes your vehicle and suggests 5 complete modification concepts with a parts list. One click to render.',
@@ -463,6 +463,7 @@
                     'Softbox Studio': 'Studio Softbox', 'Rim Light Dramatis': 'Dramatic Rim Light', 'Natural': 'Natural', 'Neon': 'Neon', 'Mendung Lembut': 'Soft Overcast', 'Golden Hour': 'Golden Hour', 'Lampu Jalan': 'Street Lights',
                     'Siang': 'Day', 'Sore': 'Sunset', 'Malam': 'Night', 'Subuh': 'Dawn',
                     '3/4 Depan': 'Front 3/4', 'Samping': 'Side Profile', '3/4 Belakang': 'Rear 3/4', 'Belakang': 'Rear', 'Depan Lurus': 'Front Straight', 'Low Angle': 'Low Angle', 'Top-down': 'Top-down', 'Close-up Velg': 'Wheel Close-up', 'Close-up Lampu Depan': 'Headlight Close-up', 'Close-up Lampu Belakang': 'Taillight Close-up', 'Close-up Knalpot': 'Exhaust Close-up', 'Interior / Dashboard': 'Interior / Dashboard', 'Detail Emblem': 'Badge Detail', 'Rolling Shot': 'Rolling Shot', 'Mesin': 'Engine', 'Speedometer': 'Speedometer',
+                    '3/4 Depan Kiri': 'Front 3/4 Left', '3/4 Depan Kanan': 'Front 3/4 Right', 'Samping Kiri': 'Left Side', 'Samping Kanan': 'Right Side', '3/4 Belakang Kiri': 'Rear 3/4 Left', '3/4 Belakang Kanan': 'Rear 3/4 Right', '3/4 Depan Rendah': 'Front 3/4 Low', '3/4 Depan Atas': 'Front 3/4 High',
                     'Orbit 360': 'Orbit 360', 'Rolling / Tracking': 'Rolling / Tracking', 'Dolly In': 'Dolly In', 'Low Fly-by': 'Low Fly-by', 'Reveal dari Detail': 'Detail Reveal', 'Statis Sinematik': 'Static Cinematic'
                 }
             };
@@ -1399,36 +1400,28 @@
             ];
             const ANGLES = {
                 car: [
-                    { val: 'front three-quarter view from the driver side, slightly low camera height', label: '3/4 Depan' },
-                    { val: 'exact side profile view, camera at wheel-hub height', label: 'Samping' },
-                    { val: 'rear three-quarter view showing the rear and the side', label: '3/4 Belakang' },
-                    { val: 'straight rear view showing the taillights and exhaust', label: 'Belakang' },
-                    { val: 'straight front view showing the grille and headlights, symmetrical composition', label: 'Depan Lurus' },
-                    { val: 'dramatic low angle front three-quarter shot, camera almost on the ground', label: 'Low Angle' },
-                    { val: 'top-down bird\'s eye view from directly above', label: 'Top-down' },
-                    { val: 'close-up detail shot of the front wheel, brake caliper and tire', label: 'Close-up Velg' },
-                    { val: 'close-up detail shot of the headlight and front fender', label: 'Close-up Lampu Depan' },
-                    { val: 'close-up detail shot of the taillight and rear quarter', label: 'Close-up Lampu Belakang' },
-                    { val: 'close-up detail shot of the exhaust tips and rear diffuser', label: 'Close-up Knalpot' },
-                    { val: 'interior view from the open driver door showing the dashboard, steering wheel and seats', label: 'Interior / Dashboard' },
-                    { val: 'macro close-up of the brand badge / emblem', label: 'Detail Emblem' },
-                    { val: 'rolling shot in motion with motion-blurred background and spinning wheels, panning camera from a chase car', label: 'Rolling Shot' }
+                    { val: 'front three-quarter view from the front-left, camera at eye level, the whole car in frame', label: '3/4 Depan Kiri' },
+                    { val: 'front three-quarter view from the front-right, camera at eye level, the whole car in frame', label: '3/4 Depan Kanan' },
+                    { val: 'exact left side profile view, camera at door-handle height, the whole car in frame', label: 'Samping Kiri' },
+                    { val: 'exact right side profile view, camera at door-handle height, the whole car in frame', label: 'Samping Kanan' },
+                    { val: 'rear three-quarter view from the rear-left, camera at eye level, the whole car in frame', label: '3/4 Belakang Kiri' },
+                    { val: 'rear three-quarter view from the rear-right, camera at eye level, the whole car in frame', label: '3/4 Belakang Kanan' },
+                    { val: 'straight front view, camera at eye level, symmetrical composition, the whole car in frame', label: 'Depan Lurus' },
+                    { val: 'straight rear view, camera at eye level, symmetrical composition, the whole car in frame', label: 'Belakang' },
+                    { val: 'front three-quarter view from a slightly low camera at knee height, the whole car in frame', label: '3/4 Depan Rendah' },
+                    { val: 'front three-quarter view from a slightly raised camera at about two meters high, the whole car in frame', label: '3/4 Depan Atas' }
                 ],
                 motorcycle: [
-                    { val: 'front three-quarter view from the left side, camera slightly low', label: '3/4 Depan' },
-                    { val: 'exact side profile view, camera at axle height', label: 'Samping' },
-                    { val: 'rear three-quarter view showing the tail and exhaust', label: '3/4 Belakang' },
-                    { val: 'straight rear view showing the taillight and exhaust', label: 'Belakang' },
-                    { val: 'straight front view showing the headlight, symmetrical composition', label: 'Depan Lurus' },
-                    { val: 'dramatic low angle front three-quarter shot, camera near the ground', label: 'Low Angle' },
-                    { val: 'top-down view from above showing the tank and seat', label: 'Top-down' },
-                    { val: 'close-up detail shot of the front wheel, brake disc and caliper', label: 'Close-up Velg' },
-                    { val: 'close-up detail shot of the headlight and front cowl', label: 'Close-up Lampu Depan' },
-                    { val: 'close-up detail shot of the exhaust muffler', label: 'Close-up Knalpot' },
-                    { val: 'close-up detail shot of the engine and frame', label: 'Mesin' },
-                    { val: 'rider\'s point of view of the handlebars and speedometer / instrument cluster', label: 'Speedometer' },
-                    { val: 'macro close-up of the brand badge / emblem on the tank', label: 'Detail Emblem' },
-                    { val: 'rolling shot in motion with a motion-blurred background, panning camera', label: 'Rolling Shot' }
+                    { val: 'front three-quarter view from the front-left, camera at seat height, the whole motorcycle in frame', label: '3/4 Depan Kiri' },
+                    { val: 'front three-quarter view from the front-right, camera at seat height, the whole motorcycle in frame', label: '3/4 Depan Kanan' },
+                    { val: 'exact left side profile view, camera at axle height, the whole motorcycle in frame', label: 'Samping Kiri' },
+                    { val: 'exact right side profile view, camera at axle height, the whole motorcycle in frame', label: 'Samping Kanan' },
+                    { val: 'rear three-quarter view from the rear-left, camera at seat height, the whole motorcycle in frame', label: '3/4 Belakang Kiri' },
+                    { val: 'rear three-quarter view from the rear-right, camera at seat height, the whole motorcycle in frame', label: '3/4 Belakang Kanan' },
+                    { val: 'straight front view, camera at headlight height, symmetrical composition, the whole motorcycle in frame', label: 'Depan Lurus' },
+                    { val: 'straight rear view, camera at taillight height, symmetrical composition, the whole motorcycle in frame', label: 'Belakang' },
+                    { val: 'front three-quarter view from a slightly low camera at knee height, the whole motorcycle in frame', label: '3/4 Depan Rendah' },
+                    { val: 'front three-quarter view from a slightly raised camera at about chest height, the whole motorcycle in frame', label: '3/4 Depan Atas' }
                 ]
             };
             const REF_TYPES = [
@@ -1474,6 +1467,12 @@
                 if (sel.sceneMode === 'custom' && sel.scene) return `Environment: ${sel.scene}. `;
                 return `Environment: the SAME location, lighting and time of day as IMAGE 1, re-projected consistently for the new viewpoint. `;
             }
+            function framingText(kind) {
+                return `Show the WHOLE ${kind} in frame with natural, standard automotive photography framing - no extreme close-up, no top-down or bird's-eye view, no fisheye distortion. `;
+            }
+            function refGuardText(kind, refs) {
+                return refs && refs.length ? `The extra reference photos are part references only: install those parts ON the subject ${kind} and never show the reference items as separate loose objects in the scene. ` : '';
+            }
             window.buildModifPrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
                 const parts = (sel.parts || []).length ? `Apply these modifications: ${sel.parts.join('; ')}. ` : '';
@@ -1481,7 +1480,7 @@
                 const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. ` : '';
                 const extra = sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '';
                 const viewpoint = pick && pick.angle
-                    ? `Then render the MODIFIED ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` + angleEnvText(sel)
+                    ? `Then render the MODIFIED ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
                     : sceneText(v, sel);
                 return lockText(v) + refsText(v, refs) + style + parts + extra + variation +
                     `Everything NOT listed stays exactly as in the reference photos (same paint color unless a color change is listed, same body, same ride height unless listed). Render every modification realistically fitted to this specific ${kind}. ` +
@@ -1495,7 +1494,7 @@
                     (sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '') +
                     `Keep the wheels, trim, glass, lights, badges, stance and every other part identical to the reference. Reflections and highlights must behave realistically for that finish. ` +
                     (pick && pick.angle
-                        ? `Then render the recolored ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the new paint / wrap must be consistent from this viewpoint. ` + angleEnvText(sel)
+                        ? `Then render the recolored ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the new paint / wrap must be consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
                         : sceneText(v, sel)) + tailText(sel);
             };
             window.buildScenePrompt = function (sel, v, pick, refs) {
@@ -1515,7 +1514,7 @@
                 return lockText(v) +
                     `Render this exact ${kind} from a NEW viewpoint: ${angle}. ` +
                     `The ${kind} itself stays 100% identical: same paint color, same wheels, same stance, same modifications, same decals. Infer unseen sides consistently from the visible design and the extra reference photos. ` +
-                    env +
+                    framingText(kind) + env +
                     (sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '') +
                     tailText(sel);
             };
@@ -1531,7 +1530,7 @@
                     : '';
                 return lockText(v) + refsText(v, refs) + request + variation +
                     `Everything NOT requested stays exactly as in the reference photos (same paint color unless a color change is requested, same body, same ride height unless requested). Render every change realistically fitted to this specific ${kind}. ` +
-                    viewpoint + angleEnvText({ sceneMode: 'keep' }) + tailText({ plate: 'keep', ratio: 'auto' });
+                    viewpoint + framingText(kind) + refGuardText(kind, refs) + angleEnvText({ sceneMode: 'keep' }) + tailText({ plate: 'keep', ratio: sel.ratio || 'auto' });
             };
 
             // ==================== FACTORY: TAB STUDIO ====================
@@ -1594,23 +1593,24 @@
                             <button type="button" class="option-btn" data-val="custom" data-no-i18n><i class="fas fa-mountain-sun mr-1"></i><span data-i18n="st.scene-custom"></span></button>
                         </div>${sceneSelect(p)}
                     </div>` : '',
-                    extra: () => `<div class="card">${stepHead(cfg.extraKey || 'st.extra')}
-                                <textarea id="${p}-extra" rows="${cfg.hideRatioPlate ? 3 : 2}" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="${cfg.extraPhKey || 'st.extra-ph'}"></textarea>
-                                ${cfg.hideRatioPlate ? '' : `<div class="grid grid-cols-2 gap-3 mt-3">
-                                    <div>
+                    extra: () => {
+                        const ratioBlock = `<div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.ratio"></p>
                                         <div class="grid grid-cols-4 gap-1.5" data-ratio-group><button type="button" class="option-btn selected" data-val="auto" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.ratio-auto"></span></button>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map(r => `<button type="button" class="option-btn" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
-                                    </div>
-                                    <div>
+                                    </div>`;
+                        const plateBlock = `<div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.plate"></p>
                                         <div class="grid grid-cols-1 gap-1.5" data-plate-group>
                                             <button type="button" class="option-btn selected" data-val="keep" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.plate-keep"></span></button>
                                             <button type="button" class="option-btn" data-val="blur" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.plate-blur"></span></button>
                                             <button type="button" class="option-btn" data-val="remove" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.plate-remove"></span></button>
                                         </div>
-                                    </div>
-                                </div>`}
-                            </div>`,
+                                    </div>`;
+                        return `<div class="card">${stepHead(cfg.extraKey || 'st.extra')}
+                                <textarea id="${p}-extra" rows="${cfg.hidePlate ? 3 : 2}" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="${cfg.extraPhKey || 'st.extra-ph'}"></textarea>
+                                ${cfg.hidePlate ? `<div class="mt-3">${ratioBlock}</div>` : `<div class="grid grid-cols-2 gap-3 mt-3">${ratioBlock}${plateBlock}</div>`}
+                            </div>`;
+                    },
                     count: () => cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
                         <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
                     </div>` : ''
@@ -2034,7 +2034,7 @@
                 tab: 'cepat', prefix: 'qk', icon: 'bolt', refs: true, sceneMode: false,
                 pickerOpts: { uploadOnly: true },
                 layout: ['extra', 'refs', 'steps'],
-                extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hideRatioPlate: true,
+                extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hidePlate: true,
                 steps: [
                     { key: 'outAngle', titleKey: 'qk.step-angle', hintKey: 'qk.angle-hint', type: 'typed', byType: ANGLES, multi: false, random: true, cols: 'grid-cols-2' }
                 ],
@@ -2304,8 +2304,14 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3';
+            window.APP_VERSION = '1.3.1';
             window.CHANGELOG = [
+                { version: '1.3.1', date: '8 Okt 2026', changes: [
+                    { id: 'Mode Cepat: pilihan rasio foto (Ikut foto, 4:3, 16:9, 1:1, 4:5, 3:4, 9:16) di bawah kolom instruksi',
+                      en: 'Quick mode: aspect ratio picker (Same as photo, 4:3, 16:9, 1:1, 4:5, 3:4, 9:16) below the request box' },
+                    { id: 'Semua fitur (Cepat, Modif Studio, Warna & Wrap, Multi-Angle): angle diganti 10 sudut foto umum (3/4 depan & belakang kiri-kanan, samping kiri-kanan, depan, belakang, agak rendah, agak tinggi) - tidak ada lagi top-down, close-up, atau interior; seluruh kendaraan selalu terlihat dan foto referensi tidak lagi muncul sebagai benda lepas',
+                      en: 'All features (Quick, Modif Studio, Color & Wrap, Multi-Angle): angles replaced with 10 common photo angles (front & rear 3/4 left-right, left-right side, front, rear, slightly low, slightly high) - no more top-down, close-ups or interior; the whole vehicle is always in frame and reference photos no longer appear as loose objects' }
+                ] },
                 { version: '1.3', date: '8 Okt 2026', changes: [
                     { id: 'Tab baru "Cepat" jadi layar pembuka: upload foto, tulis instruksi, foto referensi opsional, pilih satu angle (5 variasi) atau Acak (10 angle) - langsung generate',
                       en: 'New "Quick" tab as the opening screen: upload a photo, write your request, optional reference photos, pick one angle (5 variations) or Random (10 angles) - generate right away' },
