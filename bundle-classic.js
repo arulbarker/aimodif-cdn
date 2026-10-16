@@ -778,9 +778,9 @@
                 switchTab(pill.dataset.goto);
             });
 
-            // === LOGIN SYSTEM (lisensi via GAS + Sheet) ===
+            // === LOGIN SYSTEM (lisensi via Worker modif-auth + D1, Sheet = panel admin) ===
             const LOGIN_CFG = {
-                SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwiOO9d-fglNd4-ZGNGsZL_AIMIzUk5uSmv_X2lmLza7ASimWCfW8DZb0EgQeWybrgE/exec",
+                SCRIPT_URL: "https://modif-auth.mursalinasrul.workers.dev",
                 APP_SECRET: "AMS9xQ4vTk2LpW7nRs8bYc3FdHm6",
                 PRODUCT_ID: "ai-modif-studio",
                 BUY_LYNK_URL: "YOUR-LYNK-URL"
@@ -2304,8 +2304,14 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.1';
+            window.APP_VERSION = '1.3.2';
             window.CHANGELOG = [
+                { version: '1.3.2', date: '16 Okt 2026', changes: [
+                    { id: 'Server login baru yang lebih cepat dan stabil saat ramai - mungkin diminta login ulang sekali setelah update ini',
+                      en: 'New faster and more stable login server, even at busy times - you may be asked to log in again once after this update' },
+                    { id: 'Satu akun bisa dipakai di 2 perangkat sekaligus; login di perangkat ke-3 akan mengeluarkan perangkat yang paling lama',
+                      en: 'One account can be used on 2 devices at once; logging in on a 3rd device signs out the oldest one' }
+                ] },
                 { version: '1.3.1', date: '8 Okt 2026', changes: [
                     { id: 'Mode Cepat: pilihan rasio foto (Ikut foto, 4:3, 16:9, 1:1, 4:5, 3:4, 9:16) di bawah kolom instruksi',
                       en: 'Quick mode: aspect ratio picker (Same as photo, 4:3, 16:9, 1:1, 4:5, 3:4, 9:16) below the request box' },
