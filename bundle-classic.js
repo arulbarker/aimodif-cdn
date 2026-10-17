@@ -218,7 +218,8 @@
                     'wn.empty': 'Belum ada catatan rilis.',
                     'err.gen-failed': 'Generate gagal. Coba lagi beberapa saat lagi.',
                     'err.gen-rate': 'Terlalu banyak permintaan sekaligus / kuota harian akun Google ini habis. Tunggu sebentar, kurangi jumlah hasil, atau ganti akun Google.',
-                    'err.gen-key': 'Permintaan ditolak Google (key tidak valid, foto terlalu besar, atau model berubah). Muat ulang halaman Canvas lalu coba lagi.',
+                    'err.gen-key': 'Permintaan ditolak Google. Paling sering karena belum login akun Google di halaman Gemini - login dulu, lalu muat ulang halaman dan coba lagi. Bisa juga karena foto terlalu besar.',
+                    'btn.see-guide': 'Lihat panduan',
                     'err.gen-server': 'Server Google sedang bermasalah. Sudah dicoba ulang otomatis, coba lagi beberapa menit lagi.',
                     'err.gen-blocked': 'Foto / instruksi ini ditolak filter keamanan AI. Coba foto lain atau ubah instruksinya.',
                     'err.gen-network': 'Koneksi internet terputus / terlalu lambat. Cek sinyal lalu klik Ulangi di kartu yang gagal.',
@@ -450,7 +451,8 @@
                     'wn.empty': 'No release notes yet.',
                     'err.gen-failed': 'Generation failed. Try again in a moment.',
                     'err.gen-rate': 'Too many requests at once / this Google account hit its daily quota. Wait a bit, lower the number of results, or switch Google accounts.',
-                    'err.gen-key': 'Request rejected by Google (invalid key, photo too large, or model changed). Reload the Canvas page and try again.',
+                    'err.gen-key': 'Request rejected by Google. Most often you are not signed in to a Google account on the Gemini page - sign in, then reload the page and try again. The photo may also be too large.',
+                    'btn.see-guide': 'See guide',
                     'err.gen-server': 'Google server trouble. Retried automatically, please try again in a few minutes.',
                     'err.gen-blocked': 'This photo / instruction was rejected by the AI safety filter. Try another photo or change the instructions.',
                     'err.gen-network': 'Internet connection dropped / too slow. Check your signal, then tap Retry on the failed card.',
@@ -648,6 +650,20 @@
                     modal.addEventListener('click', (e) => { if (e.target === modal) done(); });
                 });
             };
+            window.uiNotifyGenError = function (errKey) {
+                const withGuide = /^err\.gen-/.test(errKey) && errKey !== 'err.gen-blocked';
+                if (!withGuide) return window.uiNotify(t(errKey));
+                return new Promise((res) => {
+                    const { modal, close } = buildUiDialog(t(errKey),
+                        `<button type="button" data-guide class="btn-secondary font-semibold py-2 px-4 rounded-lg text-sm"><i class="fas fa-circle-question mr-1"></i>${window.escHtml(t('btn.see-guide'))}</button>` +
+                        '<button type="button" data-ok class="btn-primary font-semibold py-2 px-5 rounded-lg text-sm">OK</button>');
+                    const done = () => { close(); res(); };
+                    modal.querySelector('[data-ok]').addEventListener('click', done);
+                    modal.querySelector('[data-guide]').addEventListener('click', () => { done(); window.showTutorial(); });
+                    modal.addEventListener('click', (e) => { if (e.target === modal) done(); });
+                });
+            };
+            document.addEventListener('click', (e) => { if (e.target.closest('[data-open-guide]')) window.showTutorial(); });
             window.uiConfirm = function (pesan, labelYa) {
                 return new Promise((res) => {
                     const { modal, close } = buildUiDialog(pesan,
@@ -1840,6 +1856,7 @@
                         <span class="text-center" style="max-width:320px;">${window.escHtml(t(errKey))}</span>
                         ${cap ? `<span class="text-slate-400" data-i18n-dyn>${window.escHtml(cap)}</span>` : ''}
                         <button type="button" class="btn-primary rounded-lg px-4 text-xs font-semibold mt-1" data-action="retry" data-index="${index - 1}" style="min-height:44px;"><i class="fas fa-rotate mr-1"></i><span data-i18n="st.regen"></span></button>
+                        ${errKey !== 'err.gen-blocked' ? `<button type="button" class="text-xs text-slate-300 underline" data-open-guide style="min-height:36px;"><i class="fas fa-circle-question mr-1"></i><span data-i18n="btn.see-guide"></span></button>` : ''}
                     </div>`;
                 let lastRun = null;   // { picks, sel, vehicle, refList, refB64 }
                 async function genOne(index) {
@@ -1875,7 +1892,7 @@
                     });
                     dlAll.classList.toggle('hidden', results.filter(Boolean).length === 0);
                     if (window._i18nApplyNow) window._i18nApplyNow();
-                    if (failedIdx.length === indices.length) await window.uiNotify(t(window.genErrorKey(failed[failedIdx[0]])));
+                    if (failedIdx.length === indices.length) await window.uiNotifyGenError(window.genErrorKey(failed[failedIdx[0]]));
                     else if (failedIdx.length) await window.uiNotify(t('err.gen-partial').replace('{n}', failedIdx.length).replace('{m}', indices.length));
                 }
 
@@ -1942,7 +1959,7 @@
                         } catch (err) {
                             window.logDebug(p + '-regen', err);
                             card.innerHTML = cardInner(idx + 1, r);
-                            await window.uiNotify(t(window.genErrorKey(err)));
+                            await window.uiNotifyGenError(window.genErrorKey(err));
                         } finally {
                             if (window._i18nApplyNow) window._i18nApplyNow();
                             busy = false; genBtn.disabled = false;
@@ -2207,7 +2224,7 @@
                     } catch (e) {
                         window.logDebug('ks', e);
                         emptyEl.classList.remove('hidden');
-                        await window.uiNotify(t(e && e.code && e.code !== 'EMPTY' ? window.genErrorKey(e) : 'err.ks-failed'));
+                        await window.uiNotifyGenError(e && e.code && e.code !== 'EMPTY' ? window.genErrorKey(e) : 'err.ks-failed');
                     } finally {
                         loadingEl.classList.add('hidden');
                         busy = false; genBtn.disabled = false;
@@ -2355,8 +2372,14 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.5';
+            window.APP_VERSION = '1.3.6';
             window.CHANGELOG = [
+                { version: '1.3.6', date: '17 Okt 2026', changes: [
+                    { id: 'Generate gagal? Pesan error dan kartu yang gagal kini punya tombol "Lihat panduan" (cara login akun Google, pasang aplikasi, chat admin)',
+                      en: 'Generation failed? Error messages and failed cards now have a "See guide" button (Google sign-in, installing the app, chat with admin)' },
+                    { id: 'Pesan "permintaan ditolak Google" kini langsung menyebut penyebab paling umum: belum login akun Google',
+                      en: 'The "request rejected by Google" message now names the most common cause: not signed in to a Google account' }
+                ] },
                 { version: '1.3.5', date: '17 Okt 2026', changes: [
                     { id: 'Semua menu (Garasi, Hasil Tersimpan, Modif Studio, Warna & Wrap, Foto Studio, Multi-Angle, Konsultan) kini selalu tampil - tombol "Mode Lanjutan" dihapus',
                       en: 'All menu items (Garage, Saved Results, Modif Studio, Color & Wrap, Photo Studio, Multi-Angle, Consultant) are now always visible - the "Advanced Mode" button is removed' }
