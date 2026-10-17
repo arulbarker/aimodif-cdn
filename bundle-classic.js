@@ -29,7 +29,7 @@
                     'tut.title': 'Panduan Singkat',
                     'tut.s1-title': 'Langsung pakai saja',
                     'tut.s1-body': 'Pilih fitur di menu, isi kolom dan pilihan yang tersedia (upload foto, tulis instruksi, pilih gaya / angle), lalu tekan tombol Generate. Semua fitur lain (Garasi, Modif Studio, Warna, Suasana, Multi-Angle, Konsultan) ada di menu.',
-                    'tut.free': 'Jangan takut salah - generate GRATIS tanpa batas. Coba sebanyak yang kamu mau.',
+                    'tut.free': 'Jangan takut salah - generate GRATIS, coba sebanyak yang kamu mau. Kalau terlalu sering dalam waktu singkat, Google kadang minta tunggu sebentar.',
                     'tut.s2-title': 'Hasil gagal atau tidak muncul?',
                     'tut.s2-body': 'Kemungkinan besar kamu belum login akun Google di halaman Gemini. Tekan tombol "Login" / "Sign in" di pojok kanan atas (seperti contoh di bawah), login dengan akun Google, lalu buka ulang aplikasi dan generate lagi.',
                     'tut.s2-inapp': 'Buka link dari Instagram / TikTok / WhatsApp? Pindahkan ke browser Chrome atau Safari supaya login Google tersimpan.',
@@ -114,6 +114,7 @@
                     'st.extra-ph': 'contoh: velg 17 inci hitam doff, spion carbon',
                     'st.ratio': 'Rasio foto',
                     'st.count': 'Jumlah hasil',
+                    'st.count-by-angle': 'Jumlah hasil mengikuti angle yang dipilih: {n} hasil.',
                     'st.plate': 'Plat nomor',
                     'st.plate-keep': 'Pertahankan',
                     'st.plate-blur': 'Blur',
@@ -128,7 +129,7 @@
                     'st.scene-custom': 'Pilih suasana',
                     'st.random': 'Acak',
                     'st.generating': 'Merender...',
-                    'st.preview': 'Preview',
+                    'st.preview': 'Lihat',
                     'st.compare': 'Bandingkan',
                     'st.regen': 'Ulangi',
                     'st.download': 'Download',
@@ -142,7 +143,7 @@
                     'md.parts-hint': 'Pilih beberapa sekaligus. Detailkan di instruksi tambahan.',
                     'md.tip1': 'Pilih gaya dulu, lalu centang part. Makin spesifik instruksi tambahan, makin presisi hasilnya.',
                     'md.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
-                    'md.tip3': 'Mode "Pertahankan foto asli" menjaga latar & angle persis seperti foto kamu.',
+                    'md.tip3': 'Mode "Pertahankan foto asli" menjaga latar seperti foto kamu. Angle ikut foto asli, kecuali kamu memilih angle hasil.',
                     'md.step-angle': 'Angle hasil (opsional)',
                     'md.angle-hint': 'Kosongkan = ikut angle foto asli. Pilih 1 atau beberapa angle = satu hasil per angle (maks 10). "Acak" = angle acak sejumlah "Jumlah hasil".',
                     'st.sel-all': 'Pilih semua',
@@ -150,6 +151,7 @@
                     'st.save': 'Simpan',
                     'st.use': 'Jadikan kendaraan',
                     'st.saved': 'Tersimpan di Hasil Tersimpan.',
+                    'st.already-saved': 'Hasil ini sudah ada di Hasil Tersimpan.',
                     'rs.title': 'Hasil Tersimpan',
                     'rs.subtitle': 'Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 10 foto.',
                     'rs.list-title': 'Koleksi',
@@ -178,7 +180,7 @@
                     'su.step-time': 'Waktu',
                     'su.tip1': 'Studio cyclorama hitam/putih = tampilan katalog profesional untuk jualan.',
                     'su.tip2': 'Pilih "Acak" untuk dapat beberapa suasana berbeda sekaligus dalam satu generate.',
-                    'su.tip3': 'Hasil di sini bisa dilanjutkan ke Multi-Angle dengan upload langsung.',
+                    'su.tip3': 'Mau lihat dari sudut lain? Tekan "Jadikan kendaraan" di kartu hasil, lalu pilih Multi-Angle.',
                     'an.title': 'Multi-Angle',
                     'an.subtitle': 'Dari satu foto, AI membuat kendaraan yang sama dari berbagai sudut pandang. Latar bisa ikut foto asli atau studio.',
                     'an.step-angles': 'Pilih angle',
@@ -219,6 +221,7 @@
                     'err.gen-failed': 'Generate gagal. Coba lagi beberapa saat lagi.',
                     'err.gen-rate': 'Terlalu banyak permintaan sekaligus / kuota harian akun Google ini habis. Tunggu sebentar, kurangi jumlah hasil, atau ganti akun Google.',
                     'err.gen-key': 'Permintaan ditolak Google. Paling sering karena belum login akun Google di halaman Gemini - login dulu, lalu muat ulang halaman dan coba lagi. Bisa juga karena foto terlalu besar.',
+                    'err.gen-model': 'Layanan AI Google sedang berubah atau tidak tersedia. Ini bukan kesalahanmu - chat admin supaya segera kami perbaiki.',
                     'btn.see-guide': 'Lihat panduan',
                     'err.gen-server': 'Server Google sedang bermasalah. Sudah dicoba ulang otomatis, coba lagi beberapa menit lagi.',
                     'err.gen-blocked': 'Foto / instruksi ini ditolak filter keamanan AI. Coba foto lain atau ubah instruksinya.',
@@ -227,6 +230,7 @@
                     'err.storage': 'Penyimpanan perangkat penuh atau tidak tersedia (mode privat?). Hapus kendaraan / hasil lama atau download dulu.',
                     'st.ratio-auto': 'Ikut foto',
                     'err.no-vehicle': 'Pilih kendaraan dari garasi atau upload foto dulu.',
+                    'err.no-photo': 'Upload foto kendaraan dulu.',
                     'err.no-angle': 'Pilih minimal 1 angle.',
                     'err.no-part': 'Pilih minimal 1 part atau isi instruksi tambahan.',
                     'err.login.invalid-email': 'Format email tidak valid.',
@@ -262,7 +266,7 @@
                     'tut.title': 'Quick Guide',
                     'tut.s1-title': 'Just start using it',
                     'tut.s1-body': 'Pick a feature in the menu, fill in the fields and options (upload a photo, write your request, choose a style / angle), then tap Generate. All other features (Garage, Modif Studio, Color, Scene, Multi-Angle, Consultant) are in the menu.',
-                    'tut.free': "Don't be afraid to make mistakes - generating is FREE and unlimited. Try as much as you like.",
+                    'tut.free': "Don't be afraid to make mistakes - generating is FREE, try as much as you like. If you generate a lot in a short time, Google may ask you to wait a moment.",
                     'tut.s2-title': 'Result failed or nothing shows up?',
                     'tut.s2-body': 'Most likely you are not signed in to a Google account on the Gemini page. Tap "Sign in" at the top right (see the example below), sign in with Google, then reopen the app and generate again.',
                     'tut.s2-inapp': 'Opened the link from Instagram / TikTok / WhatsApp? Move it to Chrome or Safari so your Google sign-in is kept.',
@@ -347,6 +351,7 @@
                     'st.extra-ph': 'e.g. 17 inch matte black wheels, carbon mirrors',
                     'st.ratio': 'Aspect ratio',
                     'st.count': 'Number of results',
+                    'st.count-by-angle': 'Number of results follows the selected angles: {n} results.',
                     'st.plate': 'License plate',
                     'st.plate-keep': 'Keep',
                     'st.plate-blur': 'Blur',
@@ -375,7 +380,7 @@
                     'md.parts-hint': 'Select several at once. Add details in the extra instructions.',
                     'md.tip1': 'Pick a style first, then tick the parts. The more specific the extra instructions, the more precise the result.',
                     'md.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
-                    'md.tip3': '"Keep original photo" keeps the background & angle exactly like your photo.',
+                    'md.tip3': '"Keep original photo" keeps the background like your photo. The angle follows your photo unless you pick output angles.',
                     'md.step-angle': 'Output angle (optional)',
                     'md.angle-hint': 'Leave empty = same angle as the original photo. Pick 1 or more angles = one result per angle (max 10). "Random" = random angles, as many as "Number of results".',
                     'st.sel-all': 'Select all',
@@ -383,6 +388,7 @@
                     'st.save': 'Save',
                     'st.use': 'Use as vehicle',
                     'st.saved': 'Saved to Saved Results.',
+                    'st.already-saved': 'This result is already in Saved Results.',
                     'rs.title': 'Saved Results',
                     'rs.subtitle': 'Generated results you saved. Stored on this device, up to 10 photos.',
                     'rs.list-title': 'Collection',
@@ -411,7 +417,7 @@
                     'su.step-time': 'Time of day',
                     'su.tip1': 'Black/white cyclorama studio = professional catalog look for selling.',
                     'su.tip2': 'Pick "Random" to get several different scenes in one generate.',
-                    'su.tip3': 'Results here can be continued in Multi-Angle via direct upload.',
+                    'su.tip3': 'Want another angle? Tap "Use as vehicle" on a result card, then pick Multi-Angle.',
                     'an.title': 'Multi-Angle',
                     'an.subtitle': 'From one photo, the AI creates the same vehicle from different viewpoints. Background can follow the original photo or a studio.',
                     'an.step-angles': 'Choose angles',
@@ -452,6 +458,7 @@
                     'err.gen-failed': 'Generation failed. Try again in a moment.',
                     'err.gen-rate': 'Too many requests at once / this Google account hit its daily quota. Wait a bit, lower the number of results, or switch Google accounts.',
                     'err.gen-key': 'Request rejected by Google. Most often you are not signed in to a Google account on the Gemini page - sign in, then reload the page and try again. The photo may also be too large.',
+                    'err.gen-model': 'The Google AI service changed or is unavailable. This is not your fault - chat with the admin so we can fix it quickly.',
                     'btn.see-guide': 'See guide',
                     'err.gen-server': 'Google server trouble. Retried automatically, please try again in a few minutes.',
                     'err.gen-blocked': 'This photo / instruction was rejected by the AI safety filter. Try another photo or change the instructions.',
@@ -460,6 +467,7 @@
                     'err.storage': 'Device storage is full or unavailable (private mode?). Delete old vehicles / results or download first.',
                     'st.ratio-auto': 'Same as photo',
                     'err.no-vehicle': 'Pick a vehicle from the garage or upload a photo first.',
+                    'err.no-photo': 'Upload a vehicle photo first.',
                     'err.no-angle': 'Select at least 1 angle.',
                     'err.no-part': 'Select at least 1 part or fill in the extra instructions.',
                     'err.login.invalid-email': 'Invalid email format.',
@@ -1236,10 +1244,10 @@
                     { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
                 ]
             };
-            // Error API bertipe: code = NETWORK | RATE_LIMIT | KEY | SERVER | BLOCKED | EMPTY
+            // Error API bertipe: code = NETWORK | RATE_LIMIT | KEY | MODEL | SERVER | BLOCKED | EMPTY
             function apiError(code, detail) { const e = new Error(code + (detail ? ': ' + String(detail).slice(0, 200) : '')); e.code = code; return e; }
             window.AMS_RETRYABLE = (code) => code === 'NETWORK' || code === 'SERVER' || code === 'RATE_LIMIT';
-            window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network' })[err && err.code] || 'err.gen-failed';
+            window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', MODEL: 'err.gen-model', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network' })[err && err.code] || 'err.gen-failed';
             async function callGemini(model, parts) {
                 const g = window.AMS_GEN;
                 let response;
@@ -1254,7 +1262,8 @@
                 try { result = await response.json(); } catch (e) { result = null; }
                 const em = result && result.error ? result.error.message : '';
                 if (response.status === 429) throw apiError('RATE_LIMIT', em);
-                if (response.status === 400 || response.status === 401 || response.status === 403 || response.status === 404) throw apiError('KEY', em || response.status);
+                if (response.status === 404) throw apiError('MODEL', em || response.status);
+                if (response.status === 400 || response.status === 401 || response.status === 403) throw apiError('KEY', em || response.status);
                 if (!response.ok) throw apiError('SERVER', em || response.status);
                 const block = result?.promptFeedback?.blockReason;
                 const finish = result?.candidates?.[0]?.finishReason;
@@ -1441,6 +1450,7 @@
                 { val: 'only the accents (mirrors, spoiler, trim, lips)', label: 'Aksen saja' },
                 { val: 'only the wheels', label: 'Velg saja' }
             ];
+            const AREAS_BY_TYPE = { car: AREAS, motorcycle: AREAS.filter(a => !/roof/.test(a.val)) };
             const ANGLES = {
                 car: [
                     { val: 'front three-quarter view from the front-left, camera at eye level, the whole car in frame', label: '3/4 Depan Kiri' },
@@ -1656,6 +1666,7 @@
                     },
                     count: () => cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
                         <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
+                        <p class="text-xs text-orange-600 mt-2 hidden" data-count-note></p>
                     </div>` : ''
                 };
                 const layout = cfg.layout || ['steps', 'refs', 'scene', 'extra', 'count'];
@@ -1716,6 +1727,7 @@
                             if (on) picked++;
                             b.classList.toggle('selected', on);
                         });
+                        refreshGenLabel();
                         return;
                     }
                     const btn = e.target.closest('.option-btn');
@@ -1788,7 +1800,20 @@
                     });
                 };
                 host.setVehicleUpload = (b64, type) => picker.setUpload(b64, type);
+                function refreshCount() {
+                    const cg = host.querySelector('[data-count-group]');
+                    if (!cfg.countFollows || !cg) return;
+                    const ang = readGroup(cfg.countFollows) || [];
+                    const n = ang.includes('__random') ? 0 : Math.min(ang.length, 10);
+                    cg.classList.toggle('opacity-40', n > 0);
+                    cg.classList.toggle('pointer-events-none', n > 0);
+                    const note = host.querySelector('[data-count-note]');
+                    note.classList.toggle('hidden', n === 0);
+                    note.textContent = t('st.count-by-angle').replace('{n}', n);
+                }
+                document.addEventListener('app-lang-changed', refreshCount);
                 function refreshGenLabel() {
+                    refreshCount();
                     if (!cfg.generateKey) return;
                     const span = genBtn.querySelector('[data-i18n]');
                     if (!span) return;
@@ -1902,7 +1927,7 @@
                     genBtn.disabled = true;
                     try {
                         const vehicle = await picker.getVehicle();
-                        if (!vehicle) { await window.uiNotify(t('err.no-vehicle')); return; }
+                        if (!vehicle) { await window.uiNotify(t(cfg.noVehicleKey || 'err.no-vehicle')); return; }
                         const sel = readSel();
                         const errKey = cfg.validate ? cfg.validate(sel, cfg.refs ? refs.length : 0) : null;
                         if (errKey) { await window.uiNotify(t(errKey)); return; }
@@ -1941,7 +1966,10 @@
                     if (action === 'compare') window.showCompare('data:image/jpeg;base64,' + r.before, 'data:image/png;base64,' + r.b64);
                     if (action === 'download') await window.downloadImage('data:image/png;base64,' + r.b64, r.filename);
                     if (action === 'video') window.showVideoPromptModal({ b64: r.b64, kind: r.kind, card: btn.closest('.result-card') });
-                    if (action === 'save') await window.saveResult({ b64: r.b64, before: r.before, kind: r.kind, caption: r.caption, tab: p, prompt: r.prompt });
+                    if (action === 'save') {
+                        if (r.saved) await window.uiNotify(t('st.already-saved'));
+                        else r.saved = await window.saveResult({ b64: r.b64, before: r.before, kind: r.kind, caption: r.caption, tab: p, prompt: r.prompt });
+                    }
                     if (action === 'use') window.showContinueModal(r.b64, r.kind);
                     if (action === 'regen') {
                         if (busy) return;
@@ -2076,7 +2104,7 @@
 
             const cepatHost = createStudioTab({
                 tab: 'cepat', prefix: 'qk', icon: 'bolt', refs: true, sceneMode: false,
-                pickerOpts: { uploadOnly: true },
+                pickerOpts: { uploadOnly: true }, noVehicleKey: 'err.no-photo',
                 layout: ['extra', 'refs', 'steps'],
                 extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hidePlate: true,
                 steps: [
@@ -2088,7 +2116,7 @@
                 promptFn: window.buildQuickPrompt
             });
             const modifHost = createStudioTab({
-                tab: 'modif', prefix: 'md', icon: 'screwdriver-wrench', refs: true, sceneMode: true, countMode: 'count',
+                tab: 'modif', prefix: 'md', icon: 'screwdriver-wrench', refs: true, sceneMode: true, countMode: 'count', countFollows: 'outAngle',
                 steps: [
                     { key: 'style', titleKey: 'md.step-style', hintKey: 'md.style-hint', type: 'typed', byType: STYLES, cols: 'grid-cols-2' },
                     { key: 'parts', titleKey: 'md.step-parts', hintKey: 'md.parts-hint', type: 'typed', byType: PARTS, multi: true, cols: 'grid-cols-2' },
@@ -2107,11 +2135,11 @@
             });
 
             const warnaHost = createStudioTab({
-                tab: 'warna', prefix: 'wr', icon: 'fill-drip', refs: true, sceneMode: true, countMode: 'count',
+                tab: 'warna', prefix: 'wr', icon: 'fill-drip', refs: true, sceneMode: true, countMode: 'count', countFollows: 'outAngle',
                 steps: [
                     { key: 'finish', titleKey: 'wr.step-finish', type: 'chips', options: FINISHES, cols: 'grid-cols-3' },
                     { key: 'color', titleKey: 'wr.step-color', type: 'chips', options: COLORS, cols: 'grid-cols-3', customInput: { phKey: 'wr.custom-ph' } },
-                    { key: 'area', titleKey: 'wr.step-area', type: 'chips', options: AREAS, cols: 'grid-cols-2' },
+                    { key: 'area', titleKey: 'wr.step-area', type: 'typed', byType: AREAS_BY_TYPE, cols: 'grid-cols-2' },
                     { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true, random: true }
                 ],
                 makePicks: (sel, vehicle) => {
@@ -2355,7 +2383,7 @@
                 const steps = (keys) => `<ol class="list-decimal pl-5 space-y-1 text-xs text-gray-600">${keys.map(k => `<li>${e(t(k))}</li>`).join('')}</ol>`;
                 const loginImg = `<img src="${TUTOR_LOGIN_IMG}" alt="${e(t('tut.img-alt'))}" class="w-full max-w-[280px] mx-auto block rounded-lg border border-gray-200 mt-2">`;
                 const body =
-                    sec(1, t('tut.s1-title'), `<p>${e(t('tut.s1-body'))}</p><p class="mt-2 text-xs font-semibold text-green-700 bg-green-50 rounded-lg px-3 py-2"><i class="fas fa-infinity mr-1"></i>${e(t('tut.free'))}</p>`) +
+                    sec(1, t('tut.s1-title'), `<p>${e(t('tut.s1-body'))}</p><p class="mt-2 text-xs font-semibold text-green-700 bg-green-50 rounded-lg px-3 py-2"><i class="fas fa-circle-check mr-1"></i>${e(t('tut.free'))}</p>`) +
                     sec(2, t('tut.s2-title'), `<p>${e(t('tut.s2-body'))}</p>${loginImg}<p class="mt-2 text-xs text-gray-500"><i class="fas fa-circle-info mr-1"></i>${e(t('tut.s2-inapp'))}</p>`) +
                     sec(3, t('tut.s3-title'), `<p class="mb-2">${e(t('tut.s3-body'))}</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div class="rounded-lg border border-gray-200 p-3"><p class="text-xs font-semibold text-gray-800 mb-1.5"><i class="fab fa-android text-green-600 mr-1"></i>${e(t('tut.android'))}</p>${steps(['tut.and-1', 'tut.and-2', 'tut.and-3', 'tut.and-4'])}</div>
@@ -2372,8 +2400,18 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.6';
+            window.APP_VERSION = '1.3.7';
             window.CHANGELOG = [
+                { version: '1.3.7', date: '17 Okt 2026', changes: [
+                    { id: 'Modif Studio & Warna: kalau kamu memilih angle, "Jumlah hasil" kini diredupkan dan ada keterangan jumlah hasil yang akan keluar',
+                      en: 'Modif Studio & Color: when you pick angles, "Number of results" is now dimmed with a note showing how many results you will get' },
+                    { id: 'Warna & Wrap untuk motor: pilihan "Two-tone (atap hitam)" disembunyikan karena motor tidak punya atap',
+                      en: 'Color & Wrap for motorcycles: the "Two-tone (black roof)" option is hidden since motorcycles have no roof' },
+                    { id: 'Hasil yang sama tidak bisa tersimpan dua kali, jadi jatah 10 Hasil Tersimpan tidak terbuang',
+                      en: 'The same result can no longer be saved twice, so your 10 Saved Results slots are not wasted' },
+                    { id: 'Pilihan bahasa ID/EN kini ada juga di halaman login, plus perbaikan beberapa pesan dan tips yang membingungkan',
+                      en: 'ID/EN language choice is now on the login page too, plus fixes to several confusing messages and tips' }
+                ] },
                 { version: '1.3.6', date: '17 Okt 2026', changes: [
                     { id: 'Generate gagal? Pesan error dan kartu yang gagal kini punya tombol "Lihat panduan" (cara login akun Google, pasang aplikasi, chat admin)',
                       en: 'Generation failed? Error messages and failed cards now have a "See guide" button (Google sign-in, installing the app, chat with admin)' },
