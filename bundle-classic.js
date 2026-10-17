@@ -783,7 +783,7 @@
                 SCRIPT_URL: "https://modif-auth.mursalinasrul.workers.dev",
                 APP_SECRET: "AMS9xQ4vTk2LpW7nRs8bYc3FdHm6",
                 PRODUCT_ID: "ai-modif-studio",
-                BUY_LYNK_URL: "YOUR-LYNK-URL"
+                BUY_LYNK_URL: "https://lynk.id/arullagi/p588or4x3w5v"
             };
             (function () {
                 const overlay = document.getElementById('login-overlay');
@@ -2304,8 +2304,12 @@
             };
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.2';
+            window.APP_VERSION = '1.3.3';
             window.CHANGELOG = [
+                { version: '1.3.3', date: '17 Okt 2026', changes: [
+                    { id: 'Tombol "Beli di Lynk.id" di halaman login sekarang langsung membuka halaman pembelian AI Modif Studio',
+                      en: 'The "Buy on Lynk.id" button on the login page now opens the AI Modif Studio purchase page directly' }
+                ] },
                 { version: '1.3.2', date: '16 Okt 2026', changes: [
                     { id: 'Server login baru yang lebih cepat dan stabil saat ramai - mungkin diminta login ulang sekali setelah update ini',
                       en: 'New faster and more stable login server, even at busy times - you may be asked to log in again once after this update' },
