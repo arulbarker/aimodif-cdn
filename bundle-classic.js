@@ -28,7 +28,7 @@
                     'wa.prefill': 'Halo Admin AI Modif Studio, saya butuh bantuan: ',
                     'tut.title': 'Panduan Singkat',
                     'tut.s1-title': 'Langsung pakai saja',
-                    'tut.s1-body': 'Pilih fitur di menu, isi kolom dan pilihan yang tersedia (upload foto, tulis instruksi, pilih gaya / angle), lalu tekan tombol Generate. Fitur lengkap ada di tombol "Mode Lanjutan" di menu.',
+                    'tut.s1-body': 'Pilih fitur di menu, isi kolom dan pilihan yang tersedia (upload foto, tulis instruksi, pilih gaya / angle), lalu tekan tombol Generate. Semua fitur lain (Garasi, Modif Studio, Warna, Suasana, Multi-Angle, Konsultan) ada di menu.',
                     'tut.free': 'Jangan takut salah - generate GRATIS tanpa batas. Coba sebanyak yang kamu mau.',
                     'tut.s2-title': 'Hasil gagal atau tidak muncul?',
                     'tut.s2-body': 'Kemungkinan besar kamu belum login akun Google di halaman Gemini. Tekan tombol "Login" / "Sign in" di pojok kanan atas (seperti contoh di bawah), login dengan akun Google, lalu buka ulang aplikasi dan generate lagi.',
@@ -49,8 +49,6 @@
                     'tut.s4-title': 'Masih bingung?',
                     'tut.s4-body': 'Chat admin lewat WhatsApp, kami bantu.',
                     'tut.ok': 'Mengerti, mulai pakai',
-                    'nav.advanced': 'Mode Lanjutan',
-                    'nav.simple': 'Mode Simpel',
                     'qk.title': 'Cepat',
                     'qk.subtitle': 'Upload foto kendaraan, tulis mau diapakan, pilih angle. Acak = 10 angle berbeda, satu angle = 5 variasi.',
                     'qk.prompt': 'Mau dimodif seperti apa?',
@@ -61,7 +59,7 @@
                     'qk.generate-single': 'Generate 5 variasi',
                     'qk.tip1': 'Tulis instruksi spesifik: ukuran velg, warna, part yang diganti. Boleh bahasa Indonesia.',
                     'qk.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
-                    'qk.tip3': 'Butuh pilihan gaya, part, latar, atau rasio? Buka Mode Lanjutan di menu.',
+                    'qk.tip3': 'Butuh pilihan gaya, part, atau latar? Buka Modif Studio, Warna & Wrap, atau Foto Studio di menu.',
                     'err.quick-empty': 'Tulis instruksi modifikasi atau tambahkan minimal satu foto referensi.',
                     'tips.title': 'Tips',
                     'btn.cancel': 'Batal',
@@ -262,7 +260,7 @@
                     'wa.prefill': 'Hi AI Modif Studio Admin, I need help with: ',
                     'tut.title': 'Quick Guide',
                     'tut.s1-title': 'Just start using it',
-                    'tut.s1-body': 'Pick a feature in the menu, fill in the fields and options (upload a photo, write your request, choose a style / angle), then tap Generate. All features live under "Advanced Mode" in the menu.',
+                    'tut.s1-body': 'Pick a feature in the menu, fill in the fields and options (upload a photo, write your request, choose a style / angle), then tap Generate. All other features (Garage, Modif Studio, Color, Scene, Multi-Angle, Consultant) are in the menu.',
                     'tut.free': "Don't be afraid to make mistakes - generating is FREE and unlimited. Try as much as you like.",
                     'tut.s2-title': 'Result failed or nothing shows up?',
                     'tut.s2-body': 'Most likely you are not signed in to a Google account on the Gemini page. Tap "Sign in" at the top right (see the example below), sign in with Google, then reopen the app and generate again.',
@@ -283,8 +281,6 @@
                     'tut.s4-title': 'Still confused?',
                     'tut.s4-body': 'Chat with the admin on WhatsApp, we will help.',
                     'tut.ok': 'Got it, start using',
-                    'nav.advanced': 'Advanced Mode',
-                    'nav.simple': 'Simple Mode',
                     'qk.title': 'Quick',
                     'qk.subtitle': 'Upload a vehicle photo, describe the mod, pick an angle. Random = 10 different angles, one angle = 5 variations.',
                     'qk.prompt': 'What should be modified?',
@@ -295,7 +291,7 @@
                     'qk.generate-single': 'Generate 5 variations',
                     'qk.tip1': 'Be specific: wheel size, color, parts to replace. Any language works.',
                     'qk.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
-                    'qk.tip3': 'Need style, parts, backdrop or aspect ratio options? Open Advanced Mode in the menu.',
+                    'qk.tip3': 'Need style, parts or backdrop options? Open Modif Studio, Color & Wrap or Photo Studio in the menu.',
                     'err.quick-empty': 'Write a modification request or add at least one reference photo.',
                     'tips.title': 'Tips',
                     'btn.cancel': 'Cancel',
@@ -780,41 +776,7 @@
 
             const mainTabButtons = document.querySelectorAll('.main-tab-btn');
             const mainContentPanels = document.querySelectorAll('.main-content-panel');
-            window.resolveInitialMode = function (stored, garageCount) {
-                if (stored === 'simple' || stored === 'advanced') return stored;
-                return garageCount > 0 ? 'advanced' : 'simple';
-            };
-            function getAppMode() {
-                return document.getElementById('nav-advanced').classList.contains('hidden') ? 'simple' : 'advanced';
-            }
-            function setAppMode(mode) {
-                const adv = mode === 'advanced';
-                document.getElementById('nav-advanced').classList.toggle('hidden', !adv);
-                const label = document.getElementById('mode-toggle').querySelector('[data-i18n]');
-                const key = adv ? 'nav.simple' : 'nav.advanced';
-                label.setAttribute('data-i18n', key);
-                label.textContent = t(key);
-                try { localStorage.setItem('ams_mode', mode); } catch (e) { window.logDebug && window.logDebug('mode', e); }
-            }
-            window.getAppMode = getAppMode;
-            window.setAppMode = setAppMode;
-            window.initAppMode = async function () {
-                let stored = null;
-                try { stored = localStorage.getItem('ams_mode'); } catch (e) { }
-                let n = 0;
-                try { n = (await window.vehicleDB.list()).length; } catch (e) { window.logDebug && window.logDebug('mode', e); }
-                const mode = window.resolveInitialMode(stored, n);
-                setAppMode(mode);
-                const active = document.querySelector('.main-tab-btn.active');
-                if (mode === 'simple' && (!active || active.dataset.tab !== 'cepat')) switchTab('cepat');
-            };
-            document.getElementById('mode-toggle').addEventListener('click', () => {
-                const next = getAppMode() === 'advanced' ? 'simple' : 'advanced';
-                setAppMode(next);
-                if (next === 'simple') switchTab('cepat');
-            });
             function switchTab(tabName) {
-                if (tabName !== 'cepat' && getAppMode() === 'simple') setAppMode('advanced');
                 mainTabButtons.forEach(btn => btn.classList.remove('active'));
                 const sidebarBtn = document.querySelector(`.main-tab-btn[data-tab="${tabName}"]`);
                 if (sidebarBtn) sidebarBtn.classList.add('active');
@@ -870,7 +832,6 @@
                     overlay.classList.add('hidden');
                     mainApp.classList.remove('hidden');
                     document.getElementById('user-name').textContent = nama;
-                    if (window.initAppMode) window.initAppMode();
                     if (!sesInterval) sesInterval = setInterval(jagaSesi, 60000);
                     try {
                         if (!localStorage.getItem('ams_seen_tutorial')) {
@@ -2394,8 +2355,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.4';
+            window.APP_VERSION = '1.3.5';
             window.CHANGELOG = [
+                { version: '1.3.5', date: '17 Okt 2026', changes: [
+                    { id: 'Semua menu (Garasi, Hasil Tersimpan, Modif Studio, Warna & Wrap, Foto Studio, Multi-Angle, Konsultan) kini selalu tampil - tombol "Mode Lanjutan" dihapus',
+                      en: 'All menu items (Garage, Saved Results, Modif Studio, Color & Wrap, Photo Studio, Multi-Angle, Consultant) are now always visible - the "Advanced Mode" button is removed' }
+                ] },
                 { version: '1.3.4', date: '17 Okt 2026', changes: [
                     { id: 'Panduan singkat (muncul sekali setelah masuk, buka lagi lewat tombol Panduan): cara pakai, solusi kalau hasil gagal (login akun Google), dan cara pasang aplikasi di layar utama Android & iPhone',
                       en: 'Quick guide (shown once after signing in, reopen with the Guide button): how to use, what to do when a result fails (Google sign-in), and how to add the app to your Android & iPhone home screen' },
