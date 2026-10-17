@@ -18,6 +18,7 @@
                 <p class="text-xs text-gray-400 mb-2" data-i18n="login.no-license">Belum punya lisensi?</p>
                 <a id="buy-link" href="#" target="_blank" rel="noopener" class="text-sm font-semibold brand-gradient-text" data-i18n="login.buy">Beli di Lynk.id</a>
             </div>
+            <a id="wa-admin-login" href="#" target="_blank" rel="noopener" class="mt-4 inline-flex items-center justify-center gap-2 text-xs font-medium text-green-600 hover:text-green-700 min-h-[36px]"><i class="fab fa-whatsapp text-base"></i><span data-i18n="login.wa">Butuh bantuan? Chat Admin</span></a>
         </div>
     </div>
 
@@ -57,7 +58,11 @@
                     <button class="main-tab-btn" data-tab="konsultan"><i class="fas fa-lightbulb"></i><span data-i18n="nav.konsultan">Konsultan Modif</span></button>
                     </div>
                 </nav>
-                <div class="p-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                <div class="px-3 pt-3 grid grid-cols-2 gap-2">
+                    <button id="help-btn-nav" class="flex items-center justify-center gap-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white text-xs min-h-[40px]"><i class="fas fa-circle-question"></i><span data-i18n="nav.help">Panduan</span></button>
+                    <a id="wa-admin-nav" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white text-xs font-medium min-h-[40px]"><i class="fab fa-whatsapp text-sm"></i><span data-i18n="nav.wa">Chat Admin</span></a>
+                </div>
+                <div class="p-3 border-t border-slate-800 mt-3 flex items-center justify-between gap-2">
                     <div class="flex gap-1">
                         <button class="lang-btn" data-lang="id">ID</button>
                         <button class="lang-btn" data-lang="en">EN</button>
@@ -71,7 +76,8 @@
                     <button id="toggle-sidebar-btn" class="w-11 h-11 rounded-lg bg-white border border-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0" aria-label="Menu">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <span class="font-semibold text-gray-800 brand-font truncate min-w-0" data-i18n="app.title">AI Modif Studio</span>
+                    <span class="font-semibold text-gray-800 brand-font truncate min-w-0 flex-1" data-i18n="app.title">AI Modif Studio</span>
+                    <button id="help-btn-header" class="w-11 h-11 rounded-lg bg-white border border-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0" data-i18n-title="nav.help" title="Panduan" aria-label="Panduan"><i class="fas fa-circle-question"></i></button>
                 </header>
 
                 <main>
