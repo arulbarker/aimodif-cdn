@@ -54,7 +54,7 @@
                     'qk.prompt': 'Mau dimodif seperti apa?',
                     'qk.prompt-ph': 'contoh: ganti velg 19 inci hitam, body kit lebar, stiker racing merah',
                     'qk.step-angle': 'Angle hasil',
-                    'qk.angle-hint': 'Acak = 10 angle berbeda, 1 hasil per angle. Pilih satu angle = 5 variasi dari sudut itu.',
+                    'qk.angle-hint': 'Acak = 10 angle berbeda, 1 hasil per angle. Ikut foto = 5 variasi dengan sudut & latar foto aslimu (paling mirip). Pilih satu angle = 5 variasi dari sudut itu.',
                     'qk.generate-random': 'Generate 10 hasil',
                     'qk.generate-single': 'Generate 5 variasi',
                     'qk.tip1': 'Tulis instruksi spesifik: ukuran velg, warna, part yang diganti. Boleh bahasa Indonesia.',
@@ -153,16 +153,16 @@
                     'st.saved': 'Tersimpan di Hasil Tersimpan.',
                     'st.already-saved': 'Hasil ini sudah ada di Hasil Tersimpan.',
                     'rs.title': 'Hasil Tersimpan',
-                    'rs.subtitle': 'Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 10 foto.',
+                    'rs.subtitle': 'Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 20 foto.',
                     'rs.list-title': 'Koleksi',
                     'rs.empty': 'Belum ada hasil tersimpan. Klik ikon simpan di kartu hasil studio.',
                     'rs.del-confirm': 'Hapus foto ini dari koleksi?',
-                    'rs.tip1': 'Simpan hanya hasil terbaik, kuota 10 foto per perangkat. Hapus yang lama kalau penuh.',
+                    'rs.tip1': 'Simpan hanya hasil terbaik, kuota 20 foto per perangkat. Hapus yang lama kalau penuh.',
                     'rs.tip2': 'Tombol "Jadikan kendaraan" memakai hasil ini sebagai foto dasar di studio lain, misalnya lihat dari angle lain.',
                     'rs.tip3': 'Tersimpan di browser perangkat ini, bukan di server. Hapus data browser = koleksi ikut hilang, jadi download yang penting.',
                     'ct.title': 'Jadikan kendaraan di...',
                     'ct.hint': 'Hasil ini dipakai sebagai foto kendaraan (Upload Langsung) di studio yang kamu pilih.',
-                    'err.rs-limit': 'Koleksi penuh (10 foto). Hapus salah satu di Hasil Tersimpan dulu.',
+                    'err.rs-limit': 'Koleksi penuh (20 foto). Hapus salah satu di Hasil Tersimpan dulu.',
                     'wr.title': 'Warna & Wrap',
                     'wr.subtitle': 'Ganti warna cat atau wrap kendaraan. Bentuk, part, dan latar tetap sama.',
                     'wr.step-finish': 'Jenis finishing',
@@ -291,7 +291,7 @@
                     'qk.prompt': 'What should be modified?',
                     'qk.prompt-ph': 'e.g. 19-inch black wheels, wide body kit, red racing stripes',
                     'qk.step-angle': 'Output angle',
-                    'qk.angle-hint': 'Random = 10 different angles, 1 result each. Pick one angle = 5 variations from that viewpoint.',
+                    'qk.angle-hint': 'Random = 10 different angles, 1 result each. Same as photo = 5 variations keeping your photo\'s angle & background (most faithful). Pick one angle = 5 variations from that viewpoint.',
                     'qk.generate-random': 'Generate 10 results',
                     'qk.generate-single': 'Generate 5 variations',
                     'qk.tip1': 'Be specific: wheel size, color, parts to replace. Any language works.',
@@ -390,16 +390,16 @@
                     'st.saved': 'Saved to Saved Results.',
                     'st.already-saved': 'This result is already in Saved Results.',
                     'rs.title': 'Saved Results',
-                    'rs.subtitle': 'Generated results you saved. Stored on this device, up to 10 photos.',
+                    'rs.subtitle': 'Generated results you saved. Stored on this device, up to 20 photos.',
                     'rs.list-title': 'Collection',
                     'rs.empty': 'Nothing saved yet. Tap the save icon on a studio result card.',
                     'rs.del-confirm': 'Remove this photo from the collection?',
-                    'rs.tip1': 'Save only your best results, 10 photos per device. Delete old ones when full.',
+                    'rs.tip1': 'Save only your best results, 20 photos per device. Delete old ones when full.',
                     'rs.tip2': '"Use as vehicle" uses this result as the base photo in another studio, e.g. to view it from other angles.',
                     'rs.tip3': 'Stored in the browser of this device, not on a server. Clearing browser data clears the collection, so download what matters.',
                     'ct.title': 'Use as vehicle in...',
                     'ct.hint': 'This result becomes the vehicle photo (Direct Upload) in the studio you pick.',
-                    'err.rs-limit': 'Collection is full (10 photos). Delete one in Saved Results first.',
+                    'err.rs-limit': 'Collection is full (20 photos). Delete one in Saved Results first.',
                     'wr.title': 'Color & Wrap',
                     'wr.subtitle': 'Change the paint color or wrap. Shape, parts, and background stay the same.',
                     'wr.step-finish': 'Finish type',
@@ -504,7 +504,7 @@
                 id: {},
                 en: {
                     'Mobil': 'Car', 'Motor': 'Motorcycle',
-                    'Acak': 'Random',
+                    'Acak': 'Random', 'Ikut foto': 'Same as photo',
                     'Harian Rapi': 'Clean Daily', 'Kontes / Show': 'Show Car', 'Racing / Track': 'Racing / Track', 'Touring / Adventure': 'Touring / Adventure', 'Offroad': 'Offroad', 'Elegan / VIP': 'Elegant / VIP',
                     'Hemat': 'Low', 'Menengah': 'Medium', 'Sultan': 'High',
                     'Pertahankan': 'Keep', 'Blur': 'Blur', 'Hapus': 'Remove',
@@ -746,7 +746,10 @@
             window.compressImage = function (source, maxSide = 1280, quality = 0.88) {
                 return new Promise((resolve, reject) => {
                     const img = new Image();
+                    const objUrl = (typeof source === 'string') ? null : URL.createObjectURL(source);
+                    const done = () => { if (objUrl) URL.revokeObjectURL(objUrl); };
                     img.onload = () => {
+                        done();
                         const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
                         const canvas = document.createElement('canvas');
                         canvas.width = Math.round(img.width * scale);
@@ -759,8 +762,8 @@
                             reader.readAsDataURL(blob);
                         }, 'image/jpeg', quality);
                     };
-                    img.onerror = () => reject(new Error('Image load failed'));
-                    img.src = (typeof source === 'string') ? source : URL.createObjectURL(source);
+                    img.onerror = () => { done(); reject(new Error('Image load failed')); };
+                    img.src = objUrl || source;
                 });
             };
             // File (termasuk HEIC iPhone) -> { b64, blob, dataUrl } terkompres
@@ -926,7 +929,7 @@
             // record: { id, name, type: 'car'|'motorcycle', notes, photos: [b64 jpeg x1-4], createdAt }
             const GR_MAX_VEHICLES = 6;
             const GR_MAX_PHOTOS = 4;
-            const RS_MAX_RESULTS = 10;
+            const RS_MAX_RESULTS = 20;
             // record results: { id, b64 (png), before (jpeg), kind, caption, tab, prompt, createdAt }
             function makeLocalStore(STORE) {
                 const DB = 'ams_garage', STORES = ['vehicles', 'results'];
@@ -1303,6 +1306,7 @@
                 '9:16': 'vertical 9:16 format (story / reels)',
                 '3:4': 'portrait 3:4 format'
             };
+            const RATIO_AUTO_NEW_VIEW = 'the SAME aspect ratio as IMAGE 1 (aspect ratio only - the framing follows the new viewpoint)';
             const PLATE_TEXT = {
                 keep: 'Keep the license plate exactly as in the reference photo.',
                 blur: 'Render the license plate blurred and unreadable.',
@@ -1492,9 +1496,9 @@
             function lockText(v) {
                 const kind = kindOf(v);
                 const n = v.photos.length;
-                const ident = v.name ? ` (${v.name}${v.notes ? ', ' + v.notes : ''})` : '';
+                const ident = v.name ? ` (owner's label, for identification only: ${v.name}${v.notes ? ', ' + v.notes : ''})` : '';
                 const imgs = n > 1 ? `IMAGE 1 to IMAGE ${n} show the SAME ${kind}${ident} photographed from different sides` : `IMAGE 1 shows a ${kind}${ident}`;
-                return `${imgs}. This exact ${kind} is the subject. Keep its make, model, generation, body shape, proportions, panel lines, headlight and taillight design, grille, windows, badges and every distinctive detail EXACTLY as photographed. Do NOT replace it with a different ${kind} and do NOT redesign it. `;
+                return `${imgs}. This exact ${kind} is the subject. Keep its make, model, generation, body shape, proportions, panel lines, headlight and taillight design, grille, windows, badges and every distinctive detail EXACTLY as photographed. Do NOT replace it with a different ${kind} and do NOT redesign it - except for the changes explicitly requested below. `;
             }
             function refsText(v, refs) {
                 if (!refs || !refs.length) return '';
@@ -1510,8 +1514,10 @@
                 if (sel.sceneMode === 'custom' && sel.scene) return `Place the ${kind} in ${sel.scene}. Keep the same camera angle and framing as IMAGE 1. Lighting, reflections and shadows on the ${kind} must match the new environment realistically. `;
                 return `Keep the ORIGINAL background, environment, camera angle, framing, perspective, lighting direction, shadows and reflections of IMAGE 1 exactly as they are - the result must look like the same photograph with only the described changes applied to the ${kind}. `;
             }
-            function tailText(sel) {
-                return `${PLATE_TEXT[sel.plate] || PLATE_TEXT.keep} Photorealistic, sharp, professional automotive photography quality, correct scale and physically plausible fitment. ${RATIO_TEXT[sel.ratio] || RATIO_TEXT.auto}. No text overlay, no watermark.`;
+            function tailText(sel, newView) {
+                const fixed = sel.ratio !== 'auto' && RATIO_TEXT[sel.ratio];
+                const ratio = newView && !fixed ? RATIO_AUTO_NEW_VIEW : (RATIO_TEXT[sel.ratio] || RATIO_TEXT.auto);
+                return `${PLATE_TEXT[sel.plate] || PLATE_TEXT.keep} Photorealistic, sharp, professional automotive photography quality, correct scale and physically plausible fitment. ${ratio}. No text overlay, no watermark.`;
             }
             const VAR_HINTS = ['balanced, tasteful execution', 'bolder, more aggressive execution', 'subtle OEM-plus execution', 'show-level, maximal execution', 'daily-driver friendly execution', 'premium elegant execution'];
 
@@ -1530,25 +1536,29 @@
                 const kind = kindOf(v);
                 const parts = (sel.parts || []).length ? `Apply these modifications: ${sel.parts.join('; ')}. ` : '';
                 const style = sel.style ? `MODIFICATION BRIEF - ${sel.style}. ` : '';
-                const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. ` : '';
+                const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. This interpretation only shapes how the requested changes are executed - add nothing that was not requested. ` : '';
                 const extra = sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '';
                 const viewpoint = pick && pick.angle
                     ? `Then render the MODIFIED ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
                     : sceneText(v, sel);
                 return lockText(v) + refsText(v, refs) + style + parts + extra + variation +
                     `Everything NOT listed stays exactly as in the reference photos (same paint color unless a color change is listed, same body, same ride height unless listed). Render every modification realistically fitted to this specific ${kind}. ` +
-                    viewpoint + tailText(sel);
+                    viewpoint + tailText(sel, !!(pick && pick.angle));
             };
             window.buildColorPrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
                 const color = sel.colorCustom ? sel.colorCustom : (sel.color || 'black');
+                const area = sel.area || 'the entire body';
+                const keep = /wheels/.test(area) ? 'the body paint, trim, glass, lights, badges, stance'
+                    : /accents/.test(area) ? 'the main body paint, wheels, glass, lights, badges, stance'
+                    : 'the wheels, trim, glass, lights, badges, stance';
                 return lockText(v) + refsText(v, refs) +
-                    `Change ONLY the paint / wrap of this ${kind}: ${color} with a ${sel.finish || 'high-gloss'} finish, applied to ${sel.area || 'the entire body'}. ` +
+                    `Change ONLY the paint / wrap of this ${kind}: ${color} with a ${sel.finish || 'high-gloss'} finish, applied to ${area}. ` +
                     (sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '') +
-                    `Keep the wheels, trim, glass, lights, badges, stance and every other part identical to the reference. Reflections and highlights must behave realistically for that finish. ` +
+                    `Keep ${keep} and every other part identical to the reference. Reflections and highlights must behave realistically for that finish. ` +
                     (pick && pick.angle
                         ? `Then render the recolored ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the new paint / wrap must be consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
-                        : sceneText(v, sel)) + tailText(sel);
+                        : sceneText(v, sel)) + tailText(sel, !!(pick && pick.angle));
             };
             window.buildScenePrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
@@ -1569,7 +1579,7 @@
                     `The ${kind} itself stays 100% identical: same paint color, same wheels, same stance, same modifications, same decals. Infer unseen sides consistently from the visible design and the extra reference photos. ` +
                     framingText(kind) + env +
                     (sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '') +
-                    tailText(sel);
+                    tailText(sel, true);
             };
 
             window.buildQuickPrompt = function (sel, v, pick, refs) {
@@ -1577,13 +1587,14 @@
                 const request = sel.extra
                     ? `Requested modification from the owner (highest priority): ${sel.extra}. `
                     : `Apply the changes shown in the reference photos to the subject ${kind}. `;
-                const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. ` : '';
+                const variation = pick && pick.variant ? `Interpretation for this render: ${pick.variant}. This interpretation only shapes how the requested changes are executed - add nothing that was not requested. ` : '';
                 const viewpoint = pick && pick.angle
-                    ? `Then render the MODIFIED ${kind} from this viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. `
-                    : '';
+                    ? `Then render the MODIFIED ${kind} from this viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` +
+                      framingText(kind) + refGuardText(kind, refs) + angleEnvText({ sceneMode: 'keep' })
+                    : refGuardText(kind, refs) + sceneText(v, { sceneMode: 'keep' });
                 return lockText(v) + refsText(v, refs) + request + variation +
                     `Everything NOT requested stays exactly as in the reference photos (same paint color unless a color change is requested, same body, same ride height unless requested). Render every change realistically fitted to this specific ${kind}. ` +
-                    viewpoint + framingText(kind) + refGuardText(kind, refs) + angleEnvText({ sceneMode: 'keep' }) + tailText({ plate: 'keep', ratio: sel.ratio || 'auto' });
+                    viewpoint + tailText({ plate: 'keep', ratio: sel.ratio || 'auto' }, !!(pick && pick.angle));
             };
 
             // ==================== FACTORY: TAB STUDIO ====================
@@ -1596,11 +1607,12 @@
                     `</div>`;
             }
             function typedGroup(attrs, byType, opts) {
+                const keep = opts.keep ? `<button type="button" class="option-btn" data-val="__keep">Ikut foto</button>` : '';
                 const rnd = opts.random ? `<button type="button" class="option-btn${opts.multi ? '' : ' selected'}" data-val="__random">Acak</button>` : '';
                 const first = (i) => (!opts.multi && !opts.random && i === 0) ? ' selected' : '';
                 return `<div ${attrs}>` +
-                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + rnd + byType.car.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
-                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + rnd + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="car" class="grid ${opts.cols || 'grid-cols-2'} gap-2">` + rnd + keep + byType.car.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
+                    `<div data-for="motorcycle" class="grid ${opts.cols || 'grid-cols-2'} gap-2 hidden">` + rnd + keep + byType.motorcycle.map((x, i) => `<button type="button" class="option-btn${first(i)}" data-val="${window.escHtml(x.val)}">${x.label}</button>`).join('') + `</div>` +
                     `</div>`;
             }
             function sceneSelect(p) {
@@ -1626,7 +1638,7 @@
                             h += `<div class="card">${stepHead(s.titleKey)}`;
                             if (s.hintKey) h += `<p class="text-xs text-gray-400 mb-2" data-i18n="${s.hintKey}"></p>`;
                             if (s.selectAll) h += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[44px] px-2" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[44px] px-2" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
-                            if (s.type === 'typed') h += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random });
+                            if (s.type === 'typed') h += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random, keep: s.keep });
                             else h += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
                             if (s.customInput) h += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
                             h += `</div>`;
@@ -1889,7 +1901,7 @@
                     const pk = picks[index - 1];
                     const promptText = cfg.promptFn(sel, vehicle, pk, refList);
                     const b64 = await genImageWithRefs(promptText, refB64);
-                    results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], photos: vehicle.photos.slice(), kind: kindOf(vehicle), filename: `${p}-${index}.png` };
+                    results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], photos: vehicle.photos.slice(), inputs: refB64, kind: kindOf(vehicle), filename: `${p}-${lastRun.stamp}-${index}.png` };
                     const card = document.getElementById(`${p}-card-${index}`);
                     if (card) { card.innerHTML = cardInner(index, results[index - 1]); if (window._i18nApplyNow) window._i18nApplyNow(); }
                 }
@@ -1939,8 +1951,11 @@
                         grid.innerHTML = picks.map((pk, i) => spinnerCard(i + 1, pk.caption)).join('');
                         if (window._i18nApplyNow) window._i18nApplyNow();
                         const refList = cfg.refs ? refs.map(r => ({ type: r.type, b64: r.b64 })) : [];
-                        lastRun = { picks, sel, vehicle, refList, refB64: [...vehicle.photos, ...refList.map(r => r.b64)] };
+                        lastRun = { picks, sel, vehicle, refList, refB64: [...vehicle.photos, ...refList.map(r => r.b64)], stamp: Date.now().toString(36).slice(-5) };
                         await runPicks(picks.map((_, i) => i));
+                    } catch (err) {
+                        window.logDebug(p + '-gen', err);
+                        await window.uiNotify(t('err.storage'));
                     } finally {
                         busy = false;
                         genBtn.disabled = false;
@@ -1978,11 +1993,11 @@
                         card.innerHTML = spinnerCard(idx + 1, r.caption).replace(/^<div[^>]*>|<\/div>$/g, '');
                         if (window._i18nApplyNow) window._i18nApplyNow();
                         try {
-                            // Pakai foto kendaraan yang dipakai saat prompt dibuat (penomoran IMAGE n tetap cocok)
-                            const photos = (r.photos && r.photos.length) ? r.photos : [r.before];
-                            const refList = cfg.refs ? refs.map(x => ({ type: x.type, b64: x.b64 })) : [];
-                            const b64 = await genImageWithRefs(r.prompt, [...photos, ...refList.map(x => x.b64)]);
-                            results[idx] = Object.assign({}, r, { b64 });
+                            // Pakai foto kendaraan + referensi yang dipakai saat prompt dibuat (penomoran IMAGE n tetap cocok)
+                            const inputs = (r.inputs && r.inputs.length) ? r.inputs : ((r.photos && r.photos.length) ? r.photos : [r.before]);
+                            const b64 = await genImageWithRefs(r.prompt, inputs);
+                            results[idx] = Object.assign({}, r, { b64, saved: false });
+                            Object.keys(card.dataset).filter(k => /^vp\d+$/.test(k)).forEach(k => delete card.dataset[k]);
                             card.innerHTML = cardInner(idx + 1, results[idx]);
                         } catch (err) {
                             window.logDebug(p + '-regen', err);
@@ -2045,9 +2060,15 @@
                 }
                 let dragging = false;
                 wrap.addEventListener('pointerdown', (e) => { dragging = true; setPos(e.clientX); });
-                window.addEventListener('pointermove', (e) => { if (dragging) setPos(e.clientX); });
-                window.addEventListener('pointerup', () => { dragging = false; });
-                const close = () => { m.classList.remove('show'); setTimeout(() => m.remove(), 200); };
+                const onMove = (e) => { if (dragging) setPos(e.clientX); };
+                const onUp = () => { dragging = false; };
+                window.addEventListener('pointermove', onMove);
+                window.addEventListener('pointerup', onUp);
+                const close = () => {
+                    window.removeEventListener('pointermove', onMove);
+                    window.removeEventListener('pointerup', onUp);
+                    m.classList.remove('show'); setTimeout(() => m.remove(), 200);
+                };
                 m.addEventListener('click', close);
                 m.querySelector('[data-close]').addEventListener('click', close);
                 document.body.appendChild(m);
@@ -2099,6 +2120,7 @@
                 if (!sel.outAngle || sel.outAngle === '__random') {
                     return shuffled(ANGLES[kind].map(a => a.val)).slice(0, 10).map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
                 }
+                if (sel.outAngle === '__keep') return VAR_HINTS.slice(0, 5).map((h, i) => ({ variant: h, caption: VAR_CAPTIONS[i] }));
                 return VAR_HINTS.slice(0, 5).map((h, i) => ({ angle: sel.outAngle, variant: h, caption: VAR_CAPTIONS[i] }));
             };
 
@@ -2108,7 +2130,7 @@
                 layout: ['extra', 'refs', 'steps'],
                 extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hidePlate: true,
                 steps: [
-                    { key: 'outAngle', titleKey: 'qk.step-angle', hintKey: 'qk.angle-hint', type: 'typed', byType: ANGLES, multi: false, random: true, cols: 'grid-cols-2' }
+                    { key: 'outAngle', titleKey: 'qk.step-angle', hintKey: 'qk.angle-hint', type: 'typed', byType: ANGLES, multi: false, random: true, keep: true, cols: 'grid-cols-2' }
                 ],
                 generateKey: (sel) => (!sel.outAngle || sel.outAngle === '__random') ? 'qk.generate-random' : 'qk.generate-single',
                 makePicks: (sel, vehicle) => window.quickPicks(sel, vehicle),
@@ -2202,8 +2224,13 @@
                 }));
                 const selVal = (g) => (g.querySelector('.option-btn.selected') || {}).dataset?.val || '';
 
+                const BUDGET_TEXT = {
+                    car: { low: 'low budget (under 10 million IDR)', medium: 'medium budget (10-40 million IDR)', high: 'high budget (above 40 million IDR)' },
+                    motorcycle: { low: 'low budget (under 2 million IDR)', medium: 'medium budget (2-8 million IDR)', high: 'high budget (above 8 million IDR)' }
+                };
                 function buildConsultPrompt(v, goal, budget, notes) {
                     const kind = kindOf(v);
+                    budget = BUDGET_TEXT[kind][budget] || BUDGET_TEXT[kind].low;
                     const styles = STYLES[kind].map(s => s.label);
                     const parts = PARTS[kind].map(s => s.label);
                     const lang = window.getLang() === 'id' ? 'Indonesian (bahasa Indonesia, casual but professional)' : 'English';
@@ -2226,11 +2253,11 @@
                         list.map((c, i) => `<div class="concept-card">
                             <div class="flex items-start justify-between gap-2 mb-1">
                                 <h4>${i + 1}. ${window.escHtml(c.name || '')}</h4>
-                                <span class="badge-type whitespace-nowrap">${window.escHtml(c.style || '')}</span>
+                                <span class="badge-type whitespace-nowrap" data-i18n-dyn>${window.escHtml(c.style || '')}</span>
                             </div>
                             <p class="text-sm text-gray-600 mb-2">${window.escHtml(c.summary || '')}</p>
                             <p class="text-xs font-semibold text-gray-500 mb-1" data-i18n="ks.parts"></p>
-                            <ul class="mb-2">${(c.parts || []).map(x => `<li>${window.escHtml(x)}</li>`).join('')}</ul>
+                            <ul class="mb-2">${(c.parts || []).map(x => `<li data-i18n-dyn>${window.escHtml(x)}</li>`).join('')}</ul>
                             <p class="text-xs text-gray-500 mb-3"><span class="font-semibold" data-i18n="ks.est"></span>: ${window.escHtml(c.estimate || '-')}</p>
                             <button class="btn-primary w-full rounded-lg py-2.5 text-sm font-semibold" data-render="${i}"><i class="fas fa-wand-magic-sparkles mr-1"></i><span data-i18n="ks.render"></span></button>
                         </div>`).join('');
@@ -2400,8 +2427,20 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.3.7';
+            window.APP_VERSION = '1.4.0';
             window.CHANGELOG = [
+                { version: '1.4.0', date: '21 Okt 2026', changes: [
+                    { id: 'Tab Cepat: pilihan baru "Ikut foto" — 5 variasi modif dengan sudut & latar foto aslimu, hasil paling mirip kendaraanmu',
+                      en: 'Quick tab: new "Same as photo" option — 5 mod variations keeping your photo\'s angle & background, the most faithful results' },
+                    { id: 'Hasil dari sudut lain lebih rapi: AI tidak lagi dipaksa meniru potongan foto asli saat diminta sudut baru',
+                      en: 'Cleaner results from other angles: the AI is no longer forced to copy the original crop when asked for a new viewpoint' },
+                    { id: 'Modif lebih nurut: lampu/grill yang kamu minta boleh diganti, variasi tidak menambah part yang tidak diminta, Warna "Velg saja"/"Aksen saja" tidak lagi bertentangan',
+                      en: 'Mods follow your request better: requested lights/grille can change, variations add no unrequested parts, Color "Wheels only"/"Accents only" no longer contradict' },
+                    { id: 'Tombol Ulangi memakai foto referensi yang sama seperti hasil aslinya, dan hasil ulangan bisa disimpan lagi',
+                      en: 'Regenerate reuses the same reference photos as the original result, and the new image can be saved again' },
+                    { id: 'Konsultan Modif: budget Hemat/Menengah/Sultan kini sesuai motor (bukan harga mobil); Hasil Tersimpan jadi 20 foto; app lebih ringan di HP',
+                      en: 'Mod Consultant: Low/Medium/High budgets now fit motorcycles (not car prices); Saved Results up to 20 photos; lighter on phones' }
+                ] },
                 { version: '1.3.7', date: '17 Okt 2026', changes: [
                     { id: 'Modif Studio & Warna: kalau kamu memilih angle, "Jumlah hasil" kini diredupkan dan ada keterangan jumlah hasil yang akan keluar',
                       en: 'Modif Studio & Color: when you pick angles, "Number of results" is now dimmed with a note showing how many results you will get' },
