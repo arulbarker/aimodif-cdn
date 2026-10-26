@@ -101,13 +101,13 @@
                     'st.no-vehicle': 'Belum ada kendaraan aktif. Daftarkan dulu di Garasi atau upload langsung.',
                     'st.upload-ph': 'Klik untuk upload foto kendaraan',
                     'st.type': 'Jenis',
-                    'st.refs-title': 'Foto Referensi Part (opsional)',
-                    'st.refs-hint': 'Upload foto velg, ban, body kit, atau kendaraan lain sebagai referensi. Pilih jenis referensinya.',
+                    'st.refs-title': 'Foto Referensi (opsional)',
+                    'st.refs-hint': 'Upload foto velg, ban, body kit, atau mobil/motor lain sebagai referensi, lalu ketuk label di bawah foto untuk ganti jenisnya. Pilih "Tiru Gaya" untuk meniru gaya kendaraan lain (mis. mobil balap) ke kendaraanmu.',
                     'st.ref-wheel': 'Velg',
                     'st.ref-tire': 'Ban',
                     'st.ref-bodykit': 'Body Kit',
                     'st.ref-color': 'Warna / Wrap',
-                    'st.ref-vehicle': 'Kendaraan Lain',
+                    'st.ref-vehicle': 'Tiru Gaya',
                     'st.ref-part': 'Part Lain',
                     'st.ref-add': 'Tambah referensi',
                     'st.extra': 'Instruksi tambahan (opsional)',
@@ -338,13 +338,13 @@
                     'st.no-vehicle': 'No active vehicle. Register one in the Garage or upload directly.',
                     'st.upload-ph': 'Click to upload a vehicle photo',
                     'st.type': 'Type',
-                    'st.refs-title': 'Part Reference Photos (optional)',
-                    'st.refs-hint': 'Upload photos of wheels, tires, body kits, or another vehicle as reference. Pick the reference type.',
+                    'st.refs-title': 'Reference Photos (optional)',
+                    'st.refs-hint': 'Upload photos of wheels, tires, body kits, or another car/motorcycle as reference, then tap the label under the photo to change its type. Pick "Copy Style" to copy the style of another vehicle (e.g. a race car) onto yours.',
                     'st.ref-wheel': 'Wheels',
                     'st.ref-tire': 'Tires',
                     'st.ref-bodykit': 'Body Kit',
                     'st.ref-color': 'Color / Wrap',
-                    'st.ref-vehicle': 'Other Vehicle',
+                    'st.ref-vehicle': 'Copy Style',
                     'st.ref-part': 'Other Part',
                     'st.ref-add': 'Add reference',
                     'st.extra': 'Extra instructions (optional)',
@@ -1486,7 +1486,7 @@
                 { val: 'tire', key: 'st.ref-tire', text: 'a TIRE reference: use these tires (same tread pattern, sidewall profile and lettering)' },
                 { val: 'bodykit', key: 'st.ref-bodykit', text: 'a BODY KIT / aero reference: replicate this body kit design (bumpers, splitter, side skirts, diffuser, wing) adapted to the subject vehicle\'s body lines' },
                 { val: 'color', key: 'st.ref-color', text: 'a COLOR / WRAP reference: paint or wrap the subject vehicle in exactly this color, finish and pattern' },
-                { val: 'vehicle', key: 'st.ref-vehicle', text: 'a STYLE INSPIRATION vehicle: copy its stance, wheels, aero, color scheme and overall vibe onto the subject vehicle - but the subject MUST remain the vehicle from IMAGE 1, never this one' },
+                { val: 'vehicle', key: 'st.ref-vehicle', text: 'a STYLE reference vehicle: transfer its whole modification style onto the subject vehicle - stance and ride height, wheel design, aero / body kit, paint color scheme, livery, decals and racing number graphics (if present), lighting accents and overall vibe - adapted to the subject\'s own body lines. Everything taken from this style reference counts as an explicitly requested change, including paint / livery and ride height. Copy the STYLE only: never copy this vehicle\'s make, model, body shape, headlights, grille or badges - the subject MUST remain the vehicle from IMAGE 1, never this one' },
                 { val: 'part', key: 'st.ref-part', text: 'a PART / ACCESSORY reference: install this exact part on the subject vehicle as shown' }
             ];
             window.AMS_DATA = { SCENES, LIGHTS, TIMES, STYLES, PARTS, FINISHES, COLORS, AREAS, ANGLES, REF_TYPES, RATIO_TEXT, PLATE_TEXT, STUDIO_SCENE };
@@ -1529,8 +1529,15 @@
             function framingText(kind) {
                 return `Show the WHOLE ${kind} in frame with natural, standard automotive photography framing - no extreme close-up, no top-down or bird's-eye view, no fisheye distortion. `;
             }
+            function styleGuardText(kind, refs) {
+                return refs && refs.some(r => r.type === 'vehicle') ? `The style reference ${kind} only lends its style: apply that style ON the subject ${kind} and never show the style reference ${kind} itself in the scene - the image contains exactly ONE ${kind}. ` : '';
+            }
             function refGuardText(kind, refs) {
-                return refs && refs.length ? `The extra reference photos are part references only: install those parts ON the subject ${kind} and never show the reference items as separate loose objects in the scene. ` : '';
+                if (!refs || !refs.length) return '';
+                const style = styleGuardText(kind, refs);
+                if (!style) return `The extra reference photos are part references only: install those parts ON the subject ${kind} and never show the reference items as separate loose objects in the scene. `;
+                const parts = refs.some(r => r.type !== 'vehicle') ? `Install the parts from the part reference photos ON the subject ${kind} and never show those reference items as separate loose objects in the scene. ` : '';
+                return parts + style;
             }
             window.buildModifPrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
@@ -1540,7 +1547,7 @@
                 const extra = sel.extra ? `Additional instructions from the owner (highest priority): ${sel.extra}. ` : '';
                 const viewpoint = pick && pick.angle
                     ? `Then render the MODIFIED ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the modifications must be visible and consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
-                    : sceneText(v, sel);
+                    : styleGuardText(kind, refs) + sceneText(v, sel);
                 return lockText(v) + refsText(v, refs) + style + parts + extra + variation +
                     `Everything NOT listed stays exactly as in the reference photos (same paint color unless a color change is listed, same body, same ride height unless listed). Render every modification realistically fitted to this specific ${kind}. ` +
                     viewpoint + tailText(sel, !!(pick && pick.angle));
@@ -1558,7 +1565,7 @@
                     `Keep ${keep} and every other part identical to the reference. Reflections and highlights must behave realistically for that finish. ` +
                     (pick && pick.angle
                         ? `Then render the recolored ${kind} from a NEW viewpoint: ${pick.angle}. Infer unseen sides consistently from the visible design and the extra reference photos; the new paint / wrap must be consistent from this viewpoint. ` + framingText(kind) + refGuardText(kind, refs) + angleEnvText(sel)
-                        : sceneText(v, sel)) + tailText(sel, !!(pick && pick.angle));
+                        : styleGuardText(kind, refs) + sceneText(v, sel)) + tailText(sel, !!(pick && pick.angle));
             };
             window.buildScenePrompt = function (sel, v, pick, refs) {
                 const kind = kindOf(v);
@@ -1853,7 +1860,7 @@
                         refsEl.innerHTML = refs.map((r, i) => `<div class="ref-slot has-image">
                             <img src="${r.dataUrl}" alt="">
                             <button type="button" class="rm" data-ref-rm="${i}" aria-label="Hapus"><i class="fas fa-xmark"></i></button>
-                            <select class="lbl ams-select" data-ref-type="${i}" style="appearance:none;-webkit-appearance:none;background-image:none;border:0;">
+                            <select class="lbl ams-select" data-ref-type="${i}" style="appearance:none;-webkit-appearance:none;border:0;">
                                 ${REF_TYPES.map(rt => `<option value="${rt.val}"${rt.val === r.type ? ' selected' : ''}>${window.escHtml(t(rt.key))}</option>`).join('')}
                             </select>
                         </div>`).join('');
@@ -2427,8 +2434,14 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.0';
+            window.APP_VERSION = '1.4.1';
             window.CHANGELOG = [
+                { version: '1.4.1', date: '26 Okt 2026', changes: [
+                    { id: 'Referensi "Tiru Gaya" (dulu "Kendaraan Lain"): upload foto mobil/motor lain, mis. mobil balap, lalu gayanya (stance, velg, aero, warna, livery & stiker) diterapkan ke kendaraanmu - bentuk bodinya tetap kendaraanmu',
+                      en: '"Copy Style" reference (was "Other Vehicle"): upload a photo of another car/motorcycle, e.g. a race car, and its style (stance, wheels, aero, colors, livery & decals) is applied to your vehicle - the body stays yours' },
+                    { id: 'Label jenis referensi di bawah foto kini bertanda panah, jadi kelihatan bisa diganti',
+                      en: 'The reference type label under each photo now shows an arrow, so it is clear you can change it' }
+                ] },
                 { version: '1.4.0', date: '21 Okt 2026', changes: [
                     { id: 'Tab Cepat: pilihan baru "Ikut foto" — 5 variasi modif dengan sudut & latar foto aslimu, hasil paling mirip kendaraanmu',
                       en: 'Quick tab: new "Same as photo" option — 5 mod variations keeping your photo\'s angle & background, the most faithful results' },

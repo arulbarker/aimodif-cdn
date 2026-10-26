@@ -76,6 +76,7 @@
         .ref-slot input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
         .ref-slot .rm { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 9999px; background: rgba(15,23,42,.75); color: #fff; font-size: .7rem; display: flex; align-items: center; justify-content: center; z-index: 2; }
         .ref-slot .lbl { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.65); color: #fff; font-size: .65rem; padding: .2rem .35rem; text-align: center; z-index: 1; }
+        .ref-slot select.lbl { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .25rem center; padding-left: .2rem; padding-right: .95rem; cursor: pointer; }
 
         /* ---- Modal preview / dialog ---- */
         .image-preview-modal { position: fixed; inset: 0; z-index: 60; background: rgba(2,6,23,0.8); display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
