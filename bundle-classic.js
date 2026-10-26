@@ -54,9 +54,9 @@
                     'qk.prompt': 'Mau dimodif seperti apa?',
                     'qk.prompt-ph': 'contoh: ganti velg 19 inci hitam, body kit lebar, stiker racing merah',
                     'qk.step-angle': 'Angle hasil',
-                    'qk.angle-hint': 'Acak = 10 angle berbeda, 1 hasil per angle. Ikut foto = 5 variasi dengan sudut & latar foto aslimu (paling mirip). Pilih satu angle = 5 variasi dari sudut itu.',
-                    'qk.generate-random': 'Generate 10 hasil',
-                    'qk.generate-single': 'Generate 5 variasi',
+                    'qk.angle-hint': 'Acak = tiap hasil beda angle. Ikut foto = variasi dengan sudut & latar foto aslimu (paling mirip). Pilih satu angle = variasi dari sudut itu. Jumlahnya atur di langkah berikutnya.',
+                    'qk.generate-random': 'Generate {n} hasil',
+                    'qk.generate-single': 'Generate {n} variasi',
                     'qk.tip1': 'Tulis instruksi spesifik: ukuran velg, warna, part yang diganti. Boleh bahasa Indonesia.',
                     'qk.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
                     'qk.tip3': 'Butuh pilihan gaya, part, atau latar? Buka Modif Studio, Warna & Wrap, atau Foto Studio di menu.',
@@ -291,9 +291,9 @@
                     'qk.prompt': 'What should be modified?',
                     'qk.prompt-ph': 'e.g. 19-inch black wheels, wide body kit, red racing stripes',
                     'qk.step-angle': 'Output angle',
-                    'qk.angle-hint': 'Random = 10 different angles, 1 result each. Same as photo = 5 variations keeping your photo\'s angle & background (most faithful). Pick one angle = 5 variations from that viewpoint.',
-                    'qk.generate-random': 'Generate 10 results',
-                    'qk.generate-single': 'Generate 5 variations',
+                    'qk.angle-hint': 'Random = every result from a different angle. Same as photo = variations keeping your photo\'s angle & background (most faithful). Pick one angle = variations from that viewpoint. Set how many in the next step.',
+                    'qk.generate-random': 'Generate {n} results',
+                    'qk.generate-single': 'Generate {n} variations',
                     'qk.tip1': 'Be specific: wheel size, color, parts to replace. Any language works.',
                     'qk.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
                     'qk.tip3': 'Need style, parts or backdrop options? Open Modif Studio, Color & Wrap or Photo Studio in the menu.',
@@ -565,7 +565,7 @@
                 const lang = getLang();
                 document.querySelectorAll('[data-i18n]').forEach(elm => {
                     const v = tr(lang, elm.getAttribute('data-i18n'));
-                    if (v != null) elm.textContent = v;
+                    if (v != null) elm.textContent = elm.dataset.n ? v.replace('{n}', elm.dataset.n) : v;
                 });
                 document.querySelectorAll('[data-i18n-placeholder]').forEach(elm => {
                     const v = tr(lang, elm.getAttribute('data-i18n-placeholder'));
@@ -1683,10 +1683,14 @@
                                 ${cfg.hidePlate ? `<div class="mt-3">${ratioBlock}</div>` : `<div class="grid grid-cols-2 gap-3 mt-3">${ratioBlock}${plateBlock}</div>`}
                             </div>`;
                     },
-                    count: () => cfg.countMode === 'count' ? `<div class="card">${stepHead('st.count')}
-                        <div class="grid grid-cols-6 gap-2" data-count-group>${[1, 2, 3, 4, 5, 6].map(n => `<button type="button" class="option-btn${n === 2 ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
+                    count: () => {
+                        if (cfg.countMode !== 'count') return '';
+                        const cMax = cfg.countMax || 6, cDef = cfg.countDefault || 2;
+                        return `<div class="card">${stepHead('st.count')}
+                        <div class="grid ${cMax > 6 ? 'grid-cols-5' : 'grid-cols-6'} gap-2" data-count-group>${Array.from({ length: cMax }, (_, i) => i + 1).map(n => `<button type="button" class="option-btn${n === cDef ? ' selected' : ''}" data-val="${n}" data-no-i18n>${n}</button>`).join('')}</div>
                         <p class="text-xs text-orange-600 mt-2 hidden" data-count-note></p>
-                    </div>` : ''
+                    </div>`;
+                    }
                 };
                 const layout = cfg.layout || ['steps', 'refs', 'scene', 'extra', 'count'];
                 const formHtml = layout.map(k => sections[k]()).join('');
@@ -1830,15 +1834,17 @@
                     note.classList.toggle('hidden', n === 0);
                     note.textContent = t('st.count-by-angle').replace('{n}', n);
                 }
-                document.addEventListener('app-lang-changed', refreshCount);
+                document.addEventListener('app-lang-changed', refreshGenLabel);
                 function refreshGenLabel() {
                     refreshCount();
                     if (!cfg.generateKey) return;
                     const span = genBtn.querySelector('[data-i18n]');
                     if (!span) return;
-                    const key = cfg.generateKey(readSel());
+                    const s = readSel();
+                    const key = cfg.generateKey(s);
                     span.setAttribute('data-i18n', key);
-                    span.textContent = t(key);
+                    span.dataset.n = s.count;
+                    span.textContent = t(key).replace('{n}', s.count);
                 }
                 refreshGenLabel();
 
@@ -2124,17 +2130,25 @@
             }
             window.quickPicks = function (sel, vehicle) {
                 const kind = vehicle && vehicle.type === 'motorcycle' ? 'motorcycle' : 'car';
-                if (!sel.outAngle || sel.outAngle === '__random') {
-                    return shuffled(ANGLES[kind].map(a => a.val)).slice(0, 10).map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
+                const random = !sel.outAngle || sel.outAngle === '__random';
+                const n = sel.count || (random ? 10 : 5);
+                if (random) {
+                    let pool = [];
+                    while (pool.length < n) pool = pool.concat(shuffled(ANGLES[kind].map(a => a.val)));
+                    return pool.slice(0, n).map(a => ({ angle: a, caption: LABEL_OF[a] || '' }));
                 }
-                if (sel.outAngle === '__keep') return VAR_HINTS.slice(0, 5).map((h, i) => ({ variant: h, caption: VAR_CAPTIONS[i] }));
-                return VAR_HINTS.slice(0, 5).map((h, i) => ({ angle: sel.outAngle, variant: h, caption: VAR_CAPTIONS[i] }));
+                const angle = sel.outAngle === '__keep' ? undefined : sel.outAngle;
+                return Array.from({ length: n }, (_, i) => ({
+                    ...(angle ? { angle } : {}),
+                    variant: n > 1 ? VAR_HINTS[i % VAR_HINTS.length] : '',
+                    caption: n > 1 ? VAR_CAPTIONS[i % VAR_CAPTIONS.length] : ''
+                }));
             };
 
             const cepatHost = createStudioTab({
-                tab: 'cepat', prefix: 'qk', icon: 'bolt', refs: true, sceneMode: false,
+                tab: 'cepat', prefix: 'qk', icon: 'bolt', refs: true, sceneMode: false, countMode: 'count', countMax: 10, countDefault: 4,
                 pickerOpts: { uploadOnly: true }, noVehicleKey: 'err.no-photo',
-                layout: ['extra', 'refs', 'steps'],
+                layout: ['extra', 'refs', 'steps', 'count'],
                 extraKey: 'qk.prompt', extraPhKey: 'qk.prompt-ph', hidePlate: true,
                 steps: [
                     { key: 'outAngle', titleKey: 'qk.step-angle', hintKey: 'qk.angle-hint', type: 'typed', byType: ANGLES, multi: false, random: true, keep: true, cols: 'grid-cols-2' }
@@ -2434,8 +2448,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.1';
+            window.APP_VERSION = '1.4.2';
             window.CHANGELOG = [
+                { version: '1.4.2', date: '26 Okt 2026', changes: [
+                    { id: 'Tab Cepat: pilih sendiri jumlah hasil 1-10 (default 4) - tidak perlu menunggu 10 hasil kalau cuma mau coba cepat',
+                      en: 'Quick tab: pick how many results you want, 1-10 (default 4) - no need to wait for 10 results for a quick try' }
+                ] },
                 { version: '1.4.1', date: '26 Okt 2026', changes: [
                     { id: 'Referensi "Tiru Gaya" (dulu "Kendaraan Lain"): upload foto mobil/motor lain, mis. mobil balap, lalu gayanya (stance, velg, aero, warna, livery & stiker) diterapkan ke kendaraanmu - bentuk bodinya tetap kendaraanmu',
                       en: '"Copy Style" reference (was "Other Vehicle"): upload a photo of another car/motorcycle, e.g. a race car, and its style (stance, wheels, aero, colors, livery & decals) is applied to your vehicle - the body stays yours' },
