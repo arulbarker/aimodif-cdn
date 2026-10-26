@@ -132,6 +132,8 @@
                     'st.preview': 'Lihat',
                     'st.compare': 'Bandingkan',
                     'st.regen': 'Ulangi',
+                    'st.cancel': 'Batalkan',
+                    'err.gen-canceled': 'Dibatalkan. Klik Ulangi kalau tetap mau hasil ini.',
                     'st.download': 'Download',
                     'st.video': 'Prompt Video',
                     'st.selected': 'dipilih',
@@ -369,6 +371,8 @@
                     'st.preview': 'Preview',
                     'st.compare': 'Compare',
                     'st.regen': 'Regenerate',
+                    'st.cancel': 'Cancel',
+                    'err.gen-canceled': 'Canceled. Tap Retry if you still want this result.',
                     'st.download': 'Download',
                     'st.video': 'Video Prompt',
                     'st.selected': 'selected',
@@ -1250,19 +1254,35 @@
             // Error API bertipe: code = NETWORK | RATE_LIMIT | KEY | MODEL | SERVER | BLOCKED | EMPTY
             function apiError(code, detail) { const e = new Error(code + (detail ? ': ' + String(detail).slice(0, 200) : '')); e.code = code; return e; }
             window.AMS_RETRYABLE = (code) => code === 'NETWORK' || code === 'SERVER' || code === 'RATE_LIMIT';
-            window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', MODEL: 'err.gen-model', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network' })[err && err.code] || 'err.gen-failed';
-            async function callGemini(model, parts) {
+            window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', MODEL: 'err.gen-model', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network', CANCELED: 'err.gen-canceled' })[err && err.code] || 'err.gen-failed';
+            // Gabung sinyal Batal dari user + batas waktu 90 dtk (fallback untuk browser tanpa AbortSignal.any)
+            window.amsSignal = function (userSignal) {
+                const tSig = (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(90000) : undefined;
+                if (!userSignal) return tSig;
+                if (!tSig) return userSignal;
+                if (AbortSignal.any) return AbortSignal.any([userSignal, tSig]);
+                const c = new AbortController();
+                if (userSignal.aborted || tSig.aborted) c.abort();
+                userSignal.addEventListener('abort', () => c.abort(), { once: true });
+                tSig.addEventListener('abort', () => c.abort(), { once: true });
+                return c.signal;
+            };
+            async function callGemini(model, parts, signal) {
                 const g = window.AMS_GEN;
                 let response;
                 try {
                     response = await fetch(g.API_URL(model), {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts }], safetySettings: g.SAFETY }),
-                        signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(90000) : undefined
+                        signal: window.amsSignal(signal)
                     });
-                } catch (e) { throw apiError('NETWORK', e && e.name); }
+                } catch (e) {
+                    if (signal && signal.aborted) throw apiError('CANCELED');
+                    throw apiError('NETWORK', e && e.name);
+                }
                 let result = null;
                 try { result = await response.json(); } catch (e) { result = null; }
+                if (signal && signal.aborted) throw apiError('CANCELED');
                 const em = result && result.error ? result.error.message : '';
                 if (response.status === 429) throw apiError('RATE_LIMIT', em);
                 if (response.status === 404) throw apiError('MODEL', em || response.status);
@@ -1273,12 +1293,12 @@
                 if (block || (finish && finish !== 'STOP' && finish !== 'MAX_TOKENS')) throw apiError('BLOCKED', block || finish);
                 return result;
             }
-            async function genImageWithRefs(promptText, refs) {
+            async function genImageWithRefs(promptText, refs, signal) {
                 const g = window.AMS_GEN;
                 const parts = [];
                 (refs || []).forEach(r => parts.push({ inlineData: { mimeType: 'image/jpeg', data: r } }));
                 parts.push({ text: promptText });
-                const result = await callGemini(g.IMG_MODEL, parts);
+                const result = await callGemini(g.IMG_MODEL, parts, signal);
                 const imageData = result?.candidates?.[0]?.content?.parts?.find(pp => pp.inlineData)?.inlineData?.data;
                 if (!imageData) throw apiError('EMPTY', 'No image data received');
                 return imageData;
@@ -1703,6 +1723,7 @@
                             <div id="${p}-picker"></div>
                             ${formHtml}
                             <button id="${p}-generate" class="btn-primary w-full rounded-lg py-3 font-semibold text-sm"><i class="fas fa-wand-magic-sparkles mr-2"></i><span data-i18n="st.generate"></span></button>
+                            <button id="${p}-cancel" type="button" class="btn-secondary w-full rounded-lg py-2.5 font-semibold text-sm hidden" style="min-height:44px;"><i class="fas fa-stop mr-2"></i><span data-i18n="st.cancel"></span></button>
                         </div>
                         <div class="lg:col-span-2 space-y-6">
                             <div class="card">
@@ -1731,9 +1752,12 @@
                 const emptyState = document.getElementById(`${p}-empty`);
                 const dlAll = document.getElementById(`${p}-dl-all`);
                 const genBtn = document.getElementById(`${p}-generate`);
+                const cancelBtn = document.getElementById(`${p}-cancel`);
                 const extraEl = document.getElementById(`${p}-extra`);
                 let results = [];
                 let busy = false;
+                let runCtl = null;
+                cancelBtn.addEventListener('click', () => { if (runCtl) { runCtl.abort(); cancelBtn.disabled = true; } });
                 let refs = [];   // [{ type, b64, dataUrl }]
                 let currentType = 'car';
 
@@ -1906,35 +1930,41 @@
                         <span class="text-center" style="max-width:320px;">${window.escHtml(t(errKey))}</span>
                         ${cap ? `<span class="text-slate-400" data-i18n-dyn>${window.escHtml(cap)}</span>` : ''}
                         <button type="button" class="btn-primary rounded-lg px-4 text-xs font-semibold mt-1" data-action="retry" data-index="${index - 1}" style="min-height:44px;"><i class="fas fa-rotate mr-1"></i><span data-i18n="st.regen"></span></button>
-                        ${errKey !== 'err.gen-blocked' ? `<button type="button" class="text-xs text-slate-300 underline" data-open-guide style="min-height:36px;"><i class="fas fa-circle-question mr-1"></i><span data-i18n="btn.see-guide"></span></button>` : ''}
+                        ${errKey === 'err.gen-canceled' ? '' : errKey !== 'err.gen-blocked' ? `<button type="button" class="text-xs text-slate-300 underline" data-open-guide style="min-height:36px;"><i class="fas fa-circle-question mr-1"></i><span data-i18n="btn.see-guide"></span></button>` : ''}
                     </div>`;
                 let lastRun = null;   // { picks, sel, vehicle, refList, refB64 }
-                async function genOne(index) {
+                async function genOne(index, signal) {
                     const { picks, sel, vehicle, refList, refB64 } = lastRun;
                     const pk = picks[index - 1];
                     const promptText = cfg.promptFn(sel, vehicle, pk, refList);
-                    const b64 = await genImageWithRefs(promptText, refB64);
+                    const b64 = await genImageWithRefs(promptText, refB64, signal);
                     results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], photos: vehicle.photos.slice(), inputs: refB64, kind: kindOf(vehicle), filename: `${p}-${lastRun.stamp}-${index}.png` };
                     const card = document.getElementById(`${p}-card-${index}`);
                     if (card) { card.innerHTML = cardInner(index, results[index - 1]); if (window._i18nApplyNow) window._i18nApplyNow(); }
                 }
+                function startRun() { runCtl = new AbortController(); cancelBtn.disabled = false; cancelBtn.classList.remove('hidden'); return runCtl; }
+                function endRun() { runCtl = null; cancelBtn.classList.add('hidden'); }
                 // Jalankan indeks (0-based) dengan pool 3 request; retry maks 3x hanya untuk error jaringan/server/limit
                 async function runPicks(indices) {
-                    const POOL = 3, failed = {};
+                    const POOL = 3, failed = {}, ctl = startRun();
                     let attempt = 0, pending = indices.slice();
-                    while (pending.length && attempt < 3) {
-                        attempt++;
-                        if (attempt > 1) await new Promise(r => setTimeout(r, 2500 * (attempt - 1)));
-                        const queue = pending.slice(), next = [];
-                        await Promise.all(Array.from({ length: Math.min(POOL, queue.length) }, async () => {
-                            while (queue.length) {
-                                const i = queue.shift();
-                                try { await genOne(i + 1); delete failed[i]; }
-                                catch (err) { failed[i] = err; window.logDebug(p + '-gen', err); if (window.AMS_RETRYABLE(err.code)) next.push(i); }
-                            }
-                        }));
-                        pending = next;
-                    }
+                    try {
+                        while (pending.length && !ctl.signal.aborted && attempt < 3) {
+                            attempt++;
+                            if (attempt > 1) await new Promise(r => { setTimeout(r, 2500 * (attempt - 1)); ctl.signal.onabort = r; });
+                            const queue = pending.slice(), next = [];
+                            await Promise.all(Array.from({ length: Math.min(POOL, queue.length) }, async () => {
+                                while (queue.length && !ctl.signal.aborted) {
+                                    const i = queue.shift();
+                                    try { await genOne(i + 1, ctl.signal); delete failed[i]; }
+                                    catch (err) { failed[i] = err; window.logDebug(p + '-gen', err); if (window.AMS_RETRYABLE(err.code)) next.push(i); }
+                                }
+                            }));
+                            pending = next;
+                        }
+                    } finally { endRun(); }
+                    const canceled = ctl.signal.aborted;
+                    if (canceled) indices.forEach(i => { if (!results[i] && !failed[i]) failed[i] = { code: 'CANCELED' }; });
                     const failedIdx = Object.keys(failed).map(Number);
                     failedIdx.forEach(i => {
                         const card = document.getElementById(`${p}-card-${i + 1}`);
@@ -1942,8 +1972,10 @@
                     });
                     dlAll.classList.toggle('hidden', results.filter(Boolean).length === 0);
                     if (window._i18nApplyNow) window._i18nApplyNow();
-                    if (failedIdx.length === indices.length) await window.uiNotifyGenError(window.genErrorKey(failed[failedIdx[0]]));
-                    else if (failedIdx.length) await window.uiNotify(t('err.gen-partial').replace('{n}', failedIdx.length).replace('{m}', indices.length));
+                    if (!canceled) {
+                        if (failedIdx.length === indices.length) await window.uiNotifyGenError(window.genErrorKey(failed[failedIdx[0]]));
+                        else if (failedIdx.length) await window.uiNotify(t('err.gen-partial').replace('{n}', failedIdx.length).replace('{m}', indices.length));
+                    }
                 }
 
                 genBtn.addEventListener('click', async () => {
@@ -2448,8 +2480,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.2';
+            window.APP_VERSION = '1.4.3';
             window.CHANGELOG = [
+                { version: '1.4.3', date: '27 Okt 2026', changes: [
+                    { id: 'Tombol "Batalkan" muncul saat generate berjalan - salah pilih atau terlalu lama? Hentikan saja, hasil yang sudah jadi tetap aman dan kartu yang belum jadi bisa diulang satu per satu',
+                      en: 'A "Cancel" button appears while generating - picked the wrong option or taking too long? Just stop it; finished results stay and unfinished cards can be retried one by one' }
+                ] },
                 { version: '1.4.2', date: '26 Okt 2026', changes: [
                     { id: 'Tab Cepat: pilih sendiri jumlah hasil 1-10 (default 4) - tidak perlu menunggu 10 hasil kalau cuma mau coba cepat',
                       en: 'Quick tab: pick how many results you want, 1-10 (default 4) - no need to wait for 10 results for a quick try' }
