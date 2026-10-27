@@ -50,7 +50,7 @@
                     'tut.s4-body': 'Chat admin lewat WhatsApp, kami bantu.',
                     'tut.ok': 'Mengerti, mulai pakai',
                     'qk.title': 'Cepat',
-                    'qk.subtitle': 'Upload foto kendaraan, tulis mau diapakan, pilih angle. Acak = 10 angle berbeda, satu angle = 5 variasi.',
+                    'qk.subtitle': 'Upload foto kendaraan, tulis mau diapakan, pilih angle dan jumlah hasil (1-10).',
                     'qk.prompt': 'Mau dimodif seperti apa?',
                     'qk.prompt-ph': 'contoh: ganti velg 19 inci hitam, body kit lebar, stiker racing merah',
                     'qk.step-angle': 'Angle hasil',
@@ -289,7 +289,7 @@
                     'tut.s4-body': 'Chat with the admin on WhatsApp, we will help.',
                     'tut.ok': 'Got it, start using',
                     'qk.title': 'Quick',
-                    'qk.subtitle': 'Upload a vehicle photo, describe the mod, pick an angle. Random = 10 different angles, one angle = 5 variations.',
+                    'qk.subtitle': 'Upload a vehicle photo, describe the mod, pick an angle and how many results (1-10).',
                     'qk.prompt': 'What should be modified?',
                     'qk.prompt-ph': 'e.g. 19-inch black wheels, wide body kit, red racing stripes',
                     'qk.step-angle': 'Output angle',
@@ -2480,8 +2480,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.3';
+            window.APP_VERSION = '1.4.4';
             window.CHANGELOG = [
+                { version: '1.4.4', date: '27 Okt 2026', changes: [
+                    { id: 'Keterangan tab Cepat diperbarui: jumlah hasil sekarang kamu pilih sendiri (1-10), bukan lagi tetap 10 atau 5',
+                      en: 'Quick tab description updated: you now choose how many results you get (1-10), no longer a fixed 10 or 5' }
+                ] },
                 { version: '1.4.3', date: '27 Okt 2026', changes: [
                     { id: 'Tombol "Batalkan" muncul saat generate berjalan - salah pilih atau terlalu lama? Hentikan saja, hasil yang sudah jadi tetap aman dan kartu yang belum jadi bisa diulang satu per satu',
                       en: 'A "Cancel" button appears while generating - picked the wrong option or taking too long? Just stop it; finished results stay and unfinished cards can be retried one by one' }
