@@ -1082,7 +1082,7 @@
                                 </div>
                                 <div class="flex flex-col gap-1">
                                     <button class="text-xs font-semibold rounded-lg px-2.5 py-1.5 ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-700'}" data-action="select" data-id="${v.id}" style="min-height:44px;"><span data-i18n="${isActive ? 'btn.active' : 'btn.use'}"></span></button>
-                                    <button class="text-xs text-red-500 rounded-lg px-2.5 py-1.5" data-action="delete" data-id="${v.id}" style="min-height:44px;min-width:44px;" aria-label="Hapus"><i class="fas fa-trash"></i></button>
+                                    <button class="text-xs text-red-500 rounded-lg px-2.5 py-1.5" data-action="delete" data-id="${v.id}" style="min-height:44px;min-width:44px;" data-i18n-title="btn.delete"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>`;
                         }).join('');
@@ -1190,6 +1190,7 @@
                     if (type) { uType = type; typeGroup.querySelectorAll('.option-btn').forEach(x => x.classList.toggle('selected', x.dataset.val === type)); }
                     setSrc('upload');
                 };
+                host.setGarage = function () { if (!o.uploadOnly) setSrc('garage'); };
 
                 async function renderStrip() {
                     const list = await window.vehicleDB.list();
@@ -1234,7 +1235,8 @@
                         if (!v) return null;
                         return { type: v.type, name: v.name, notes: v.notes || '', photos: v.photos.slice(0, 4), source: 'garage' };
                     },
-                    setUpload: host.setUpload
+                    setUpload: host.setUpload,
+                    setGarage: host.setGarage
                 };
             };
 
@@ -1847,6 +1849,7 @@
                     });
                 };
                 host.setVehicleUpload = (b64, type) => picker.setUpload(b64, type);
+                host.setVehicleGarage = () => picker.setGarage();
                 function refreshCount() {
                     const cg = host.querySelector('[data-count-group]');
                     if (!cfg.countFollows || !cg) return;
@@ -1889,7 +1892,7 @@
                     function renderRefs() {
                         refsEl.innerHTML = refs.map((r, i) => `<div class="ref-slot has-image">
                             <img src="${r.dataUrl}" alt="">
-                            <button type="button" class="rm" data-ref-rm="${i}" aria-label="Hapus"><i class="fas fa-xmark"></i></button>
+                            <button type="button" class="rm" data-ref-rm="${i}" data-i18n-title="btn.delete" aria-label="${window.escHtml(t('btn.delete'))}"><i class="fas fa-xmark"></i></button>
                             <select class="lbl ams-select" data-ref-type="${i}" style="appearance:none;-webkit-appearance:none;border:0;">
                                 ${REF_TYPES.map(rt => `<option value="${rt.val}"${rt.val === r.type ? ' selected' : ''}>${window.escHtml(t(rt.key))}</option>`).join('')}
                             </select>
@@ -1905,6 +1908,7 @@
                         refs[Number(s.dataset.refType)].type = s.value;
                     });
                     document.addEventListener('app-lang-changed', renderRefs);
+                    host.clearRefs = () => { refs.length = 0; renderRefs(); };
                     host.addRef = (type, b64, dataUrl) => { if (refs.length < 4) { refs.push({ type, b64, dataUrl }); renderRefs(); } };
                 }
 
@@ -2343,6 +2347,8 @@
                     const btn = e.target.closest('[data-render]'); if (!btn) return;
                     const c = concepts[Number(btn.dataset.render)]; if (!c) return;
                     if (lastVehicle && lastVehicle.source === 'upload') modifHost.setVehicleUpload(lastVehicle.photos[0], lastVehicle.type);
+                    else if (lastVehicle) modifHost.setVehicleGarage();
+                    if (modifHost.clearRefs) modifHost.clearRefs();
                     // tunggu picker modif sinkron tipe kendaraan dulu, baru pilih chip
                     await new Promise(res => setTimeout(res, 50));
                     modifHost.selectByLabel('style', [c.style || '']);
@@ -2480,8 +2486,14 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.4';
+            window.APP_VERSION = '1.4.5';
             window.CHANGELOG = [
+                { version: '1.4.5', date: '28 Okt 2026', changes: [
+                    { id: 'Konsultan Modif: tombol "Render Konsep Ini" sekarang selalu memakai kendaraan yang sama dengan yang dianalisis (dulu bisa terpakai foto upload lama di Modif Studio), dan foto referensi lama di Modif dikosongkan supaya tidak mencampuri konsep',
+                      en: 'Modif Consultant: "Render This Concept" now always uses the same vehicle that was analysed (it could pick up an old uploaded photo in Modif Studio before), and old reference photos in Modif are cleared so they do not mix into the concept' },
+                    { id: 'Tombol ikon (tutup, hapus) kini dibacakan sesuai bahasa yang dipilih untuk pengguna pembaca layar',
+                      en: 'Icon buttons (close, delete) are now announced in the selected language for screen reader users' }
+                ] },
                 { version: '1.4.4', date: '27 Okt 2026', changes: [
                     { id: 'Keterangan tab Cepat diperbarui: jumlah hasil sekarang kamu pilih sendiri (1-10), bukan lagi tetap 10 atau 5',
                       en: 'Quick tab description updated: you now choose how many results you get (1-10), no longer a fixed 10 or 5' }
