@@ -65,6 +65,7 @@
         .upload-box:hover { border-color: #fb923c; }
         .upload-box.has-image { border-style: solid; border-color: #fb923c; background: #fff; padding: 0; }
         .upload-box img.preview { max-height: 260px; width: 100%; object-fit: contain; display: block; }
+        .upload-box img.preview.hidden { display: none; }
         .upload-box .ph { color: #94a3b8; font-size: 0.8rem; }
         .upload-box .ph i { font-size: 1.6rem; display: block; margin-bottom: .4rem; color: #cbd5e1; }
         .upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

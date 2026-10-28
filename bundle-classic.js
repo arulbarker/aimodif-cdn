@@ -2486,8 +2486,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.5';
+            window.APP_VERSION = '1.4.6';
             window.CHANGELOG = [
+                { version: '1.4.6', date: '29 Okt 2026', changes: [
+                    { id: 'Kotak "Klik untuk upload foto kendaraan" kini rapi di tengah di semua menu (dulu ikon & tulisannya bergeser ke kiri karena ada ruang kosong tak terlihat)',
+                      en: 'The "Click to upload a vehicle photo" box is now neatly centered in every menu (the icon and text used to sit off to the left because of an invisible empty space)' }
+                ] },
                 { version: '1.4.5', date: '28 Okt 2026', changes: [
                     { id: 'Konsultan Modif: tombol "Render Konsep Ini" sekarang selalu memakai kendaraan yang sama dengan yang dianalisis (dulu bisa terpakai foto upload lama di Modif Studio), dan foto referensi lama di Modif dikosongkan supaya tidak mencampuri konsep',
                       en: 'Modif Consultant: "Render This Concept" now always uses the same vehicle that was analysed (it could pick up an old uploaded photo in Modif Studio before), and old reference photos in Modif are cleared so they do not mix into the concept' },
