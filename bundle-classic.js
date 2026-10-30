@@ -102,7 +102,7 @@
                     'st.upload-ph': 'Klik untuk upload foto kendaraan',
                     'st.type': 'Jenis',
                     'st.refs-title': 'Foto Referensi (opsional)',
-                    'st.refs-hint': 'Upload foto velg, ban, body kit, atau mobil/motor lain sebagai referensi, lalu ketuk label di bawah foto untuk ganti jenisnya. Pilih "Tiru Gaya" untuk meniru gaya kendaraan lain (mis. mobil balap) ke kendaraanmu.',
+                    'st.refs-hint': 'Upload foto velg, ban, body kit, atau mobil/motor lain sebagai referensi, jenisnya ditanya saat upload dan bisa diganti lewat label di bawah foto. Pilih "Tiru Gaya" untuk meniru gaya kendaraan lain (mis. mobil balap) ke kendaraanmu.',
                     'st.ref-wheel': 'Velg',
                     'st.ref-tire': 'Ban',
                     'st.ref-bodykit': 'Body Kit',
@@ -110,6 +110,7 @@
                     'st.ref-vehicle': 'Tiru Gaya',
                     'st.ref-part': 'Part Lain',
                     'st.ref-add': 'Tambah referensi',
+                    'st.ref-pick': 'Foto referensi ini untuk apa?',
                     'st.extra': 'Instruksi tambahan (opsional)',
                     'st.extra-ph': 'contoh: velg 17 inci hitam doff, spion carbon',
                     'st.ratio': 'Rasio foto',
@@ -341,7 +342,7 @@
                     'st.upload-ph': 'Click to upload a vehicle photo',
                     'st.type': 'Type',
                     'st.refs-title': 'Reference Photos (optional)',
-                    'st.refs-hint': 'Upload photos of wheels, tires, body kits, or another car/motorcycle as reference, then tap the label under the photo to change its type. Pick "Copy Style" to copy the style of another vehicle (e.g. a race car) onto yours.',
+                    'st.refs-hint': 'Upload photos of wheels, tires, body kits, or another car/motorcycle as reference, you will be asked its type on upload and can change it via the label under the photo. Pick "Copy Style" to copy the style of another vehicle (e.g. a race car) onto yours.',
                     'st.ref-wheel': 'Wheels',
                     'st.ref-tire': 'Tires',
                     'st.ref-bodykit': 'Body Kit',
@@ -349,6 +350,7 @@
                     'st.ref-vehicle': 'Copy Style',
                     'st.ref-part': 'Other Part',
                     'st.ref-add': 'Add reference',
+                    'st.ref-pick': 'What is this reference photo for?',
                     'st.extra': 'Extra instructions (optional)',
                     'st.extra-ph': 'e.g. 17 inch matte black wheels, carbon mirrors',
                     'st.ratio': 'Aspect ratio',
@@ -685,6 +687,18 @@
                     modal.querySelector('[data-yes]').addEventListener('click', () => done(true));
                     modal.querySelector('[data-no]').addEventListener('click', () => done(false));
                     modal.addEventListener('click', (e) => { if (e.target === modal) done(false); });
+                });
+            };
+            window.uiPickRefType = function (dataUrl) {
+                return new Promise((res) => {
+                    const { modal, close } = buildUiDialog(t('st.ref-pick'),
+                        window.AMS_DATA.REF_TYPES.map(rt => `<button type="button" data-pick="${rt.val}" class="btn-secondary font-semibold py-2.5 px-3 rounded-lg text-sm" style="min-height:44px;">${window.escHtml(t(rt.key))}</button>`).join(''));
+                    const btns = modal.querySelector('[data-btns]');
+                    btns.className = 'grid grid-cols-2 gap-2';
+                    if (dataUrl) btns.insertAdjacentHTML('beforebegin', `<img src="${window.escHtml(dataUrl)}" alt="" class="w-full rounded-lg mb-4" style="max-height:160px;object-fit:contain;background:#f8fafc;">`);
+                    const done = (v) => { close(); res(v); };
+                    btns.addEventListener('click', (e) => { const b = e.target.closest('[data-pick]'); if (b) done(b.dataset.pick); });
+                    modal.addEventListener('click', (e) => { if (e.target === modal) done(null); });
                 });
             };
 
@@ -1511,6 +1525,7 @@
                 { val: 'vehicle', key: 'st.ref-vehicle', text: 'a STYLE reference vehicle: transfer its whole modification style onto the subject vehicle - stance and ride height, wheel design, aero / body kit, paint color scheme, livery, decals and racing number graphics (if present), lighting accents and overall vibe - adapted to the subject\'s own body lines. Everything taken from this style reference counts as an explicitly requested change, including paint / livery and ride height. Copy the STYLE only: never copy this vehicle\'s make, model, body shape, headlights, grille or badges - the subject MUST remain the vehicle from IMAGE 1, never this one' },
                 { val: 'part', key: 'st.ref-part', text: 'a PART / ACCESSORY reference: install this exact part on the subject vehicle as shown' }
             ];
+            function refTypeFromPick(choice) { return REF_TYPES.some(x => x.val === choice) ? choice : 'part'; }
             window.AMS_DATA = { SCENES, LIGHTS, TIMES, STYLES, PARTS, FINISHES, COLORS, AREAS, ANGLES, REF_TYPES, RATIO_TEXT, PLATE_TEXT, STUDIO_SCENE };
 
             // ==================== PROMPT BUILDERS (fungsi murni) ====================
@@ -1885,7 +1900,8 @@
                         if (!f) return;
                         try {
                             const c = await window.fileToCompressed(f, 1024, 0.85);
-                            refs.push({ type: 'wheel', b64: c.b64, dataUrl: c.dataUrl });
+                            const type = refTypeFromPick(await window.uiPickRefType(c.dataUrl));
+                            refs.push({ type, b64: c.b64, dataUrl: c.dataUrl });
                             renderRefs();
                         } catch (e) { window.logDebug(p + '-ref', e); await window.uiNotify(t('err.img-read')); }
                     });
@@ -2486,8 +2502,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.6';
+            window.APP_VERSION = '1.4.7';
             window.CHANGELOG = [
+                { version: '1.4.7', date: '30 Okt 2026', changes: [
+                    { id: 'Setelah upload foto referensi, app langsung bertanya foto itu untuk apa (Velg, Ban, Body Kit, Warna / Wrap, Tiru Gaya, Part Lain). Dulu semua foto diam-diam dianggap "Velg", jadi foto body kit yang lupa diganti bisa terpasang sebagai velg',
+                      en: 'After uploading a reference photo, the app now asks what it is for (Wheels, Tires, Body Kit, Color / Wrap, Copy Style, Other Part). Previously every photo was silently treated as "Wheels", so a body kit photo left unchanged could be applied as wheels' }
+                ] },
                 { version: '1.4.6', date: '29 Okt 2026', changes: [
                     { id: 'Kotak "Klik untuk upload foto kendaraan" kini rapi di tengah di semua menu (dulu ikon & tulisannya bergeser ke kiri karena ada ruang kosong tak terlihat)',
                       en: 'The "Click to upload a vehicle photo" box is now neatly centered in every menu (the icon and text used to sit off to the left because of an invisible empty space)' }
