@@ -599,6 +599,10 @@
                     const v = tr(lang, elm.getAttribute('data-i18n-title'));
                     if (v != null) { elm.setAttribute('title', v); elm.setAttribute('aria-label', v); }
                 });
+                document.querySelectorAll('[data-i18n-aria]').forEach(elm => {
+                    const v = tr(lang, elm.getAttribute('data-i18n-aria'));
+                    if (v != null) elm.setAttribute('aria-label', v);
+                });
                 applyChipLabels(lang);
                 applyDynLabels(lang);
             }
@@ -668,9 +672,20 @@
                 </div>`;
                 modal.querySelector('[data-msg]').textContent = pesan;
                 modal.querySelector('[data-btns]').innerHTML = buttonsHtml;
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                const prevFocus = document.activeElement;
                 document.body.appendChild(modal);
-                setTimeout(() => modal.classList.add('show'), 10);
-                const close = () => { modal.classList.remove('show'); setTimeout(() => modal.remove(), 200); };
+                setTimeout(() => {
+                    modal.classList.add('show');
+                    const first = modal.querySelector('[data-ok], [data-no], button');
+                    if (first) first.focus({ preventScroll: true });
+                }, 10);
+                const close = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.remove(), 200);
+                    if (prevFocus && prevFocus.focus && document.contains(prevFocus)) prevFocus.focus({ preventScroll: true });
+                };
                 return { modal, close };
             }
             window.uiNotify = function (pesan) {
@@ -1164,7 +1179,7 @@
                             <div class="upload-box" style="min-height:140px;">
                                 <div class="ph"><i class="fas fa-car-side"></i><span data-i18n="st.upload-ph"></span></div>
                                 <img class="preview hidden" alt="">
-                                <input type="file" accept="image/*,.heic">
+                                <input type="file" accept="image/*,.heic" data-i18n-aria="st.upload-ph">
                             </div>
                             <div class="flex items-center justify-between mt-2 mb-3">
                                 <span class="text-xs text-gray-400" data-i18n="st.type"></span>
@@ -1689,7 +1704,7 @@
                     `</div>`;
             }
             function sceneSelect(p) {
-                return `<select id="${p}-scene-select" class="ams-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white mt-2 hidden">` +
+                return `<select id="${p}-scene-select" data-i18n-aria="st.scene-custom" class="ams-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white mt-2 hidden">` +
                     SCENES.map(s => `<option value="${window.escHtml(s.val)}" data-i18n-dyn>${s.label}</option>`).join('') + `</select>`;
             }
             window.DYN_LABELS.en = Object.assign(window.DYN_LABELS.en, {
@@ -1713,7 +1728,7 @@
                             if (s.selectAll) h += `<div class="flex gap-3 mb-2"><button type="button" class="text-xs font-semibold text-orange-600 min-h-[44px] px-2" data-sel-all="${s.key}" data-i18n="st.sel-all"></button><button type="button" class="text-xs font-semibold text-slate-500 min-h-[44px] px-2" data-sel-none="${s.key}" data-i18n="st.sel-none"></button></div>`;
                             if (s.type === 'typed') h += typedGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}" data-typed="1"`, s.byType, { multi: s.multi, cols: s.cols, random: s.random, keep: s.keep });
                             else h += chipGroup(`data-group="${s.key}" data-multi="${s.multi ? 1 : 0}"`, s.options, { random: s.random, multi: s.multi, cols: s.cols });
-                            if (s.customInput) h += `<input id="${p}-${s.key}-custom" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
+                            if (s.customInput) h += `<input id="${p}-${s.key}-custom" data-i18n-aria="${s.customInput.labelKey || s.titleKey}" type="text" maxlength="80" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mt-2" data-i18n-placeholder="${s.customInput.phKey}">`;
                             h += `</div>`;
                         }
                         return h;
@@ -1722,7 +1737,7 @@
                         <p class="text-xs text-gray-400 mb-2" data-i18n="st.refs-hint"></p>
                         <div id="${p}-refs" class="grid grid-cols-3 gap-2"></div>
                         <button type="button" id="${p}-ref-add" class="btn-secondary w-full rounded-lg py-2.5 text-xs font-semibold mt-2"><i class="fas fa-plus mr-1"></i><span data-i18n="st.ref-add"></span></button>
-                        <input id="${p}-ref-file" type="file" accept="image/*,.heic" class="hidden">
+                        <input id="${p}-ref-file" type="file" accept="image/*,.heic" class="hidden" data-i18n-aria="st.ref-add">
                     </div>` : '',
                     scene: () => cfg.sceneMode ? `<div class="card">${stepHead('st.scene-mode')}
                         <div class="grid grid-cols-1 gap-2" data-scene-mode>
@@ -1745,7 +1760,7 @@
                                         </div>
                                     </div>`;
                         return `<div class="card">${stepHead(cfg.extraKey || 'st.extra')}
-                                <textarea id="${p}-extra" rows="${cfg.hidePlate ? 3 : 2}" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="${cfg.extraPhKey || 'st.extra-ph'}"></textarea>
+                                <textarea id="${p}-extra" data-i18n-aria="${cfg.extraKey || 'st.extra'}" rows="${cfg.hidePlate ? 3 : 2}" maxlength="400" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" data-i18n-placeholder="${cfg.extraPhKey || 'st.extra-ph'}"></textarea>
                                 ${cfg.hidePlate ? `<div class="mt-3">${ratioBlock}</div>` : `<div class="grid grid-cols-2 gap-3 mt-3">${ratioBlock}${plateBlock}</div>`}
                             </div>`;
                     },
@@ -2263,7 +2278,7 @@
                 tab: 'warna', prefix: 'wr', icon: 'fill-drip', refs: true, sceneMode: true, countMode: 'count', countFollows: 'outAngle',
                 steps: [
                     { key: 'finish', titleKey: 'wr.step-finish', type: 'chips', options: FINISHES, cols: 'grid-cols-3' },
-                    { key: 'color', titleKey: 'wr.step-color', type: 'chips', options: COLORS, cols: 'grid-cols-3', customInput: { phKey: 'wr.custom-ph' } },
+                    { key: 'color', titleKey: 'wr.step-color', type: 'chips', options: COLORS, cols: 'grid-cols-3', customInput: { phKey: 'wr.custom-ph', labelKey: 'wr.custom-color' } },
                     { key: 'area', titleKey: 'wr.step-area', type: 'typed', byType: AREAS_BY_TYPE, cols: 'grid-cols-2' },
                     { key: 'outAngle', titleKey: 'md.step-angle', hintKey: 'md.angle-hint', type: 'typed', byType: ANGLES, multi: true, cols: 'grid-cols-2', selectAll: true, random: true }
                 ],
@@ -2533,8 +2548,14 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.8';
+            window.APP_VERSION = '1.4.9';
             window.CHANGELOG = [
+                { version: '1.4.9', date: '3 Nov 2026', changes: [
+                    { id: 'Aksesibilitas: semua kolom isian (email, nama kendaraan, catatan, upload foto, pilihan suasana) kini punya nama yang dibacakan pembaca layar, mengikuti bahasa app',
+                      en: 'Accessibility: every input (email, vehicle name, notes, photo upload, scene picker) now has a name read out by screen readers, following the app language' },
+                    { id: 'Jendela pesan & konfirmasi langsung menyorot tombolnya, jadi bisa dijawab dengan keyboard (Enter/Esc) dan fokus kembali ke tempat semula setelah ditutup',
+                      en: 'Message & confirmation dialogs now focus their button, so they can be answered with the keyboard (Enter/Esc), and focus returns where it was after closing' }
+                ] },
                 { version: '1.4.8', date: '2 Nov 2026', changes: [
                     { id: 'Perbaikan penting: di browser yang memblokir penyimpanan (mis. browser dalam aplikasi lain), tombol Masuk dulu diam tanpa pesan apa pun. Sekarang app tetap berjalan dan memberi tahu cara membukanya dengan lancar',
                       en: 'Important fix: in browsers that block storage (e.g. browsers inside other apps), the Sign In button used to do nothing with no message. The app now keeps working and tells you how to open it smoothly' },

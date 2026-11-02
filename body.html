@@ -12,7 +12,7 @@
             </div>
             <h1 class="text-xl font-bold text-gray-800 mb-1" data-i18n="app.title">AI Modif Studio</h1>
             <p class="text-sm text-gray-500 mb-6" data-i18n="login.subtitle">Masuk dengan email pembelianmu</p>
-            <input id="login-email" type="email" inputmode="email" autocomplete="email"
+            <input id="login-email" type="email" inputmode="email" autocomplete="email" data-i18n-aria="login.subtitle"
                 class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 data-i18n-placeholder="login.email-ph" placeholder="email@kamu.com">
             <button id="login-btn" class="btn-primary w-full rounded-lg py-3 font-semibold text-sm" data-i18n="login.btn">Masuk</button>
@@ -96,7 +96,7 @@
                                     <div class="flex items-center gap-3 mb-4"><span class="step-num">1</span><h3 class="font-semibold text-gray-800" data-i18n="gr.step1">Foto Kendaraan</h3></div>
                                     <div id="gr-upload" class="upload-box">
                                         <div class="ph"><i class="fas fa-images"></i><span data-i18n="gr.upload-ph">Klik untuk upload 1-4 foto (depan, samping, belakang)</span><br><span class="text-[10px]">JPG / PNG / HEIC</span></div>
-                                        <input id="gr-files" type="file" accept="image/*,.heic" multiple>
+                                        <input id="gr-files" type="file" accept="image/*,.heic" multiple data-i18n-aria="gr.upload-ph">
                                     </div>
                                     <div class="flex items-center justify-between mt-2">
                                         <span id="gr-count" class="text-xs text-gray-400">0/4</span>
@@ -110,9 +110,9 @@
                                         <button type="button" class="option-btn selected" data-val="car"><i class="fas fa-car mr-1"></i>Mobil</button>
                                         <button type="button" class="option-btn" data-val="motorcycle"><i class="fas fa-motorcycle mr-1"></i>Motor</button>
                                     </div>
-                                    <label class="text-xs font-medium text-gray-500 block mb-1" data-i18n="gr.name">Nama / merek &amp; tipe</label>
+                                    <label for="gr-name" class="text-xs font-medium text-gray-500 block mb-1" data-i18n="gr.name">Nama / merek &amp; tipe</label>
                                     <input id="gr-name" type="text" maxlength="60" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3" placeholder="Honda Brio RS 2020 / Yamaha NMAX" data-i18n-placeholder="gr.name-ph">
-                                    <label class="text-xs font-medium text-gray-500 block mb-1" data-i18n="gr.notes">Catatan (opsional)</label>
+                                    <label for="gr-notes" class="text-xs font-medium text-gray-500 block mb-1" data-i18n="gr.notes">Catatan (opsional)</label>
                                     <input id="gr-notes" type="text" maxlength="120" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" placeholder="warna putih, masih standar" data-i18n-placeholder="gr.notes-ph">
                                 </div>
                                 <button id="gr-save" class="btn-primary w-full rounded-lg py-3 font-semibold text-sm"><i class="fas fa-plus mr-2"></i><span data-i18n="gr.save">Simpan ke Garasi</span></button>
@@ -194,7 +194,7 @@
                                         <button type="button" class="option-btn" data-val="medium">Menengah</button>
                                         <button type="button" class="option-btn" data-val="high">Sultan</button>
                                     </div>
-                                    <label class="text-xs font-medium text-gray-500 block mb-1" data-i18n="ks.notes">Keinginan khusus (opsional)</label>
+                                    <label for="ks-notes" class="text-xs font-medium text-gray-500 block mb-1" data-i18n="ks.notes">Keinginan khusus (opsional)</label>
                                     <textarea id="ks-notes" rows="2" maxlength="300" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" placeholder="contoh: jangan ceper banget, tetap nyaman buat keluarga" data-i18n-placeholder="ks.notes-ph"></textarea>
                                 </div>
                                 <button id="ks-generate" class="btn-primary w-full rounded-lg py-3 font-semibold text-sm"><i class="fas fa-wand-magic-sparkles mr-2"></i><span data-i18n="ks.generate">Minta Saran Konsep</span></button>
@@ -229,7 +229,7 @@
     </div>
 
     <!-- ===== UNIVERSAL MODAL ===== -->
-    <div id="universal-modal">
+    <div id="universal-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="bg-white rounded-xl w-full max-w-md max-h-[85vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between p-4 border-b border-gray-100">
                 <h3 id="modal-title" class="font-semibold text-gray-800"></h3>
