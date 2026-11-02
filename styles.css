@@ -63,6 +63,9 @@
         /* ---- Upload box (pakem: preview utuh di kotak yang sama) ---- */
         .upload-box { border: 2px dashed #cbd5e1; border-radius: 0.75rem; background: #f8fafc; min-height: 150px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; cursor: pointer; position: relative; transition: border-color .15s; overflow: hidden; }
         .upload-box:hover { border-color: #fb923c; }
+        .proc-host { position: relative; }
+        .proc-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; background: #fff; border-radius: inherit; color: #ea580c; font-size: .8rem; font-weight: 600; }
+        .proc-overlay i { font-size: 1.4rem; }
         .upload-box.has-image { border-style: solid; border-color: #fb923c; background: #fff; padding: 0; }
         .upload-box img.preview { max-height: 260px; width: 100%; object-fit: contain; display: block; }
         .upload-box img.preview.hidden { display: none; }

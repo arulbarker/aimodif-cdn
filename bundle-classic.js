@@ -1,6 +1,20 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
+            window.amsStorageGuard = function (w) {
+                try {
+                    w.localStorage.setItem('ams_probe', '1');
+                    w.localStorage.removeItem('ams_probe');
+                    return false;
+                } catch (e) {
+                    const mem = new Map();
+                    const shim = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => { mem.set(k, String(v)); }, removeItem: (k) => { mem.delete(k); } };
+                    Object.defineProperty(w, 'localStorage', { value: shim, configurable: true });
+                    return true;
+                }
+            };
+            window.amsStorageBlocked = window.amsStorageGuard(window);
+
             // === i18n engine ===
             const T = {
                 id: {
@@ -94,6 +108,8 @@
                     'err.gr-limit': 'Maksimal 6 kendaraan. Hapus salah satu dulu.',
                     'err.gr-max-photos': 'Maksimal 4 foto per kendaraan.',
                     'err.img-read': 'Gagal membaca gambar. Coba file lain.',
+                    'st.processing': 'Memproses foto...',
+                    'login.storage-blocked': 'Browser ini memblokir penyimpanan: kamu perlu login lagi setiap membuka app, dan Garasi & Hasil Tersimpan tidak bisa dipakai. Supaya lancar, buka link app di Chrome (Android) atau Safari (iPhone).',
                     'st.step-vehicle': 'Kendaraan',
                     'st.src-garage': 'Dari Garasi',
                     'st.src-upload': 'Upload Langsung',
@@ -334,6 +350,8 @@
                     'err.gr-limit': 'Maximum 6 vehicles. Delete one first.',
                     'err.gr-max-photos': 'Maximum 4 photos per vehicle.',
                     'err.img-read': 'Could not read the image. Try another file.',
+                    'st.processing': 'Processing photo...',
+                    'login.storage-blocked': 'This browser blocks storage: you will need to sign in every time you open the app, and Garage & Saved Results will not work. For a smooth experience, open the app link in Chrome (Android) or Safari (iPhone).',
                     'st.step-vehicle': 'Vehicle',
                     'st.src-garage': 'From Garage',
                     'st.src-upload': 'Direct Upload',
@@ -784,6 +802,14 @@
                     img.src = objUrl || source;
                 });
             };
+            window.amsBusyOverlay = async function (el, fn) {
+                const o = document.createElement('div');
+                o.className = 'proc-overlay';
+                o.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i><span>${window.escHtml(t('st.processing'))}</span>`;
+                el.classList.add('proc-host');
+                el.appendChild(o);
+                try { return await fn(); } finally { o.remove(); }
+            };
             // File (termasuk HEIC iPhone) -> { b64, blob, dataUrl } terkompres
             window.fileToCompressed = async function (file, maxSide, quality) {
                 let src = file;
@@ -928,6 +954,7 @@
                     location.reload();
                 });
 
+                if (window.amsStorageBlocked) document.getElementById('login-storage-warn').classList.remove('hidden');
                 const buyLink = document.getElementById('buy-link');
                 if (LOGIN_CFG.BUY_LYNK_URL.indexOf('YOUR-') === -1) buyLink.href = LOGIN_CFG.BUY_LYNK_URL;
                 else buyLink.parentElement.classList.add('hidden');
@@ -972,7 +999,7 @@
                     });
                 }
                 return {
-                    list() { return tx('readonly', s => s.getAll()).then(r => (r || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))); },
+                    list() { return tx('readonly', s => s.getAll()).then(r => (r || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))).catch(e => { window.logDebug('db-list', e); return []; }); },
                     get(id) { return tx('readonly', s => s.get(id)); },
                     put(rec) { return tx('readwrite', s => s.put(rec)); },
                     remove(id) { return tx('readwrite', s => s.delete(id)); }
@@ -1043,7 +1070,7 @@
                     for (const f of files) {
                         if (photos.length >= GR_MAX_PHOTOS) { await window.uiNotify(t('err.gr-max-photos')); break; }
                         try {
-                            const c = await window.fileToCompressed(f, 1280, 0.88);
+                            const c = await window.amsBusyOverlay(box, () => window.fileToCompressed(f, 1280, 0.88));
                             photos.push({ b64: c.b64, dataUrl: c.dataUrl });
                         } catch (e) { window.logDebug('gr-upload', e); await window.uiNotify(t('err.img-read')); }
                     }
@@ -1191,7 +1218,7 @@
                     const f = uinput.files && uinput.files[0]; uinput.value = '';
                     if (!f) return;
                     try {
-                        const c = await window.fileToCompressed(f, 1280, 0.88);
+                        const c = await window.amsBusyOverlay(ubox, () => window.fileToCompressed(f, 1280, 0.88));
                         upload = { b64: c.b64, dataUrl: c.dataUrl };
                         uimg.src = c.dataUrl; uimg.classList.remove('hidden'); uph.classList.add('hidden'); ubox.classList.add('has-image'); urm.classList.remove('hidden');
                     } catch (e) { window.logDebug(p + '-upload', e); await window.uiNotify(t('err.img-read')); }
@@ -1269,7 +1296,8 @@
             };
             // Error API bertipe: code = NETWORK | RATE_LIMIT | KEY | MODEL | SERVER | BLOCKED | EMPTY
             function apiError(code, detail) { const e = new Error(code + (detail ? ': ' + String(detail).slice(0, 200) : '')); e.code = code; return e; }
-            window.AMS_RETRYABLE = (code) => code === 'NETWORK' || code === 'SERVER' || code === 'RATE_LIMIT';
+            window.AMS_RETRYABLE = (code) => code === 'NETWORK' || code === 'SERVER' || code === 'RATE_LIMIT' || code === 'EMPTY';
+            window.amsFinishCode = (block, finish) => block ? 'BLOCKED' : (!finish || finish === 'STOP' || finish === 'MAX_TOKENS') ? null : /^(OTHER|IMAGE_OTHER|NO_IMAGE)$/.test(finish) ? 'EMPTY' : 'BLOCKED';
             window.genErrorKey = (err) => ({ RATE_LIMIT: 'err.gen-rate', KEY: 'err.gen-key', MODEL: 'err.gen-model', SERVER: 'err.gen-server', BLOCKED: 'err.gen-blocked', NETWORK: 'err.gen-network', CANCELED: 'err.gen-canceled' })[err && err.code] || 'err.gen-failed';
             // Gabung sinyal Batal dari user + batas waktu 90 dtk (fallback untuk browser tanpa AbortSignal.any)
             window.amsSignal = function (userSignal) {
@@ -1306,7 +1334,8 @@
                 if (!response.ok) throw apiError('SERVER', em || response.status);
                 const block = result?.promptFeedback?.blockReason;
                 const finish = result?.candidates?.[0]?.finishReason;
-                if (block || (finish && finish !== 'STOP' && finish !== 'MAX_TOKENS')) throw apiError('BLOCKED', block || finish);
+                const finishCode = window.amsFinishCode(block, finish);
+                if (finishCode) throw apiError(finishCode, block || finish);
                 return result;
             }
             async function genImageWithRefs(promptText, refs, signal) {
@@ -1894,12 +1923,13 @@
                 if (cfg.refs) {
                     const refsEl = document.getElementById(`${p}-refs`);
                     const refFile = document.getElementById(`${p}-ref-file`);
-                    document.getElementById(`${p}-ref-add`).addEventListener('click', () => { if (refs.length >= 4) return; refFile.click(); });
+                    const refAdd = document.getElementById(`${p}-ref-add`);
+                    refAdd.addEventListener('click', () => { if (refs.length >= 4) return; refFile.click(); });
                     refFile.addEventListener('change', async () => {
                         const f = refFile.files && refFile.files[0]; refFile.value = '';
                         if (!f) return;
                         try {
-                            const c = await window.fileToCompressed(f, 1024, 0.85);
+                            const c = await window.amsBusyOverlay(refAdd.parentElement, () => window.fileToCompressed(f, 1024, 0.85));
                             const type = refTypeFromPick(await window.uiPickRefType(c.dataUrl));
                             refs.push({ type, b64: c.b64, dataUrl: c.dataUrl });
                             renderRefs();
@@ -2347,6 +2377,7 @@
                     try {
                         const txt = await genText(buildConsultPrompt(v, selVal(goalGroup), selVal(budgetGroup), notesEl.value.trim()), v.photos.slice(0, 2));
                         const data = parseJson(txt);
+                        if (!Array.isArray(data.concepts) || !data.concepts.length) throw new Error('no concepts');
                         lastVehicle = v;
                         renderConcepts(data);
                     } catch (e) {
@@ -2502,8 +2533,18 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.7';
+            window.APP_VERSION = '1.4.8';
             window.CHANGELOG = [
+                { version: '1.4.8', date: '2 Nov 2026', changes: [
+                    { id: 'Perbaikan penting: di browser yang memblokir penyimpanan (mis. browser dalam aplikasi lain), tombol Masuk dulu diam tanpa pesan apa pun. Sekarang app tetap berjalan dan memberi tahu cara membukanya dengan lancar',
+                      en: 'Important fix: in browsers that block storage (e.g. browsers inside other apps), the Sign In button used to do nothing with no message. The app now keeps working and tells you how to open it smoothly' },
+                    { id: 'Saat AI membalas tanpa gambar, app mencoba ulang otomatis. Dulu sebagian kasus ini keliru disebut "ditolak filter keamanan"',
+                      en: 'When the AI replies without an image, the app now retries automatically. Some of these cases used to be wrongly reported as "rejected by the safety filter"' },
+                    { id: 'Ada tanda "Memproses foto..." saat upload, supaya foto besar / HEIC iPhone tidak terasa macet',
+                      en: 'A "Processing photo..." indicator now shows during upload, so large / iPhone HEIC photos no longer feel stuck' },
+                    { id: 'Konsultan: jawaban AI tanpa konsep kini memberi pesan gagal, bukan layar kosong',
+                      en: 'Consultant: an AI reply with no concepts now shows a failure message instead of a blank screen' }
+                ] },
                 { version: '1.4.7', date: '30 Okt 2026', changes: [
                     { id: 'Setelah upload foto referensi, app langsung bertanya foto itu untuk apa (Velg, Ban, Body Kit, Warna / Wrap, Tiru Gaya, Part Lain). Dulu semua foto diam-diam dianggap "Velg", jadi foto body kit yang lupa diganti bisa terpasang sebagai velg',
                       en: 'After uploading a reference photo, the app now asks what it is for (Wheels, Tires, Body Kit, Color / Wrap, Copy Style, Other Part). Previously every photo was silently treated as "Wheels", so a body kit photo left unchanged could be applied as wheels' }
