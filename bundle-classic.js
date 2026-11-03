@@ -176,6 +176,9 @@
                     'rs.list-title': 'Koleksi',
                     'rs.empty': 'Belum ada hasil tersimpan. Klik ikon simpan di kartu hasil studio.',
                     'rs.del-confirm': 'Hapus foto ini dari koleksi?',
+                    'rs.hist-title': 'Hasil Terakhir',
+                    'rs.hist-sub': '10 hasil generate terakhir disimpan otomatis di perangkat ini, jadi tidak hilang kalau halaman tertutup atau dimuat ulang. Yang paling lama terhapus sendiri - simpan ke Koleksi yang mau kamu pertahankan.',
+                    'rs.hist-empty': 'Belum ada. Hasil generate dari menu mana pun akan muncul di sini otomatis.',
                     'rs.tip1': 'Simpan hanya hasil terbaik, kuota 20 foto per perangkat. Hapus yang lama kalau penuh.',
                     'rs.tip2': 'Tombol "Jadikan kendaraan" memakai hasil ini sebagai foto dasar di studio lain, misalnya lihat dari angle lain.',
                     'rs.tip3': 'Tersimpan di browser perangkat ini, bukan di server. Hapus data browser = koleksi ikut hilang, jadi download yang penting.',
@@ -418,6 +421,9 @@
                     'rs.list-title': 'Collection',
                     'rs.empty': 'Nothing saved yet. Tap the save icon on a studio result card.',
                     'rs.del-confirm': 'Remove this photo from the collection?',
+                    'rs.hist-title': 'Recent Results',
+                    'rs.hist-sub': 'Your last 10 generated results are kept automatically on this device, so they are not lost if the page closes or reloads. The oldest are removed on their own - save the ones you want to keep to the Collection.',
+                    'rs.hist-empty': 'Nothing yet. Results generated from any menu will show up here automatically.',
                     'rs.tip1': 'Save only your best results, 20 photos per device. Delete old ones when full.',
                     'rs.tip2': '"Use as vehicle" uses this result as the base photo in another studio, e.g. to view it from other angles.',
                     'rs.tip3': 'Stored in the browser of this device, not on a server. Clearing browser data clears the collection, so download what matters.',
@@ -991,11 +997,10 @@
             const GR_MAX_PHOTOS = 4;
             const RS_MAX_RESULTS = 20;
             // record results: { id, b64 (png), before (jpeg), kind, caption, tab, prompt, createdAt }
-            function makeLocalStore(STORE) {
-                const DB = 'ams_garage', STORES = ['vehicles', 'results'];
+            function makeLocalStore(STORE, DB = 'ams_garage', VERSION = 2, STORES = ['vehicles', 'results']) {
                 function open() {
                     return new Promise((resolve, reject) => {
-                        const req = indexedDB.open(DB, 2);
+                        const req = indexedDB.open(DB, VERSION);
                         req.onupgradeneeded = () => {
                             STORES.forEach(s => { if (!req.result.objectStoreNames.contains(s)) req.result.createObjectStore(s, { keyPath: 'id' }); });
                         };
@@ -1022,6 +1027,19 @@
             }
             window.vehicleDB = makeLocalStore('vehicles');
             window.resultDB = makeLocalStore('results');
+            // Riwayat otomatis: DB terpisah supaya DB Garasi/koleksi lama tidak perlu di-upgrade
+            const HS_MAX = 10;
+            window.historyDB = makeLocalStore('history', 'ams_history', 1, ['history']);
+            window.historyOverflow = (list, max) => list.slice(max).map(r => r.id);
+            window.pushHistory = async function (rec) {
+                try {
+                    const id = 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                    await window.historyDB.put(Object.assign({ id, createdAt: Date.now() }, rec));
+                    const list = await window.historyDB.list();
+                    for (const old of window.historyOverflow(list, HS_MAX)) await window.historyDB.remove(old);
+                    document.dispatchEvent(new CustomEvent('ams-history-changed'));
+                } catch (e) { window.logDebug('hs-save', e); }
+            };
             window.saveResult = async function (rec) {
                 const list = await window.resultDB.list();
                 if (list.length >= RS_MAX_RESULTS) { await window.uiNotify(t('err.rs-limit')); return false; }
@@ -2004,6 +2022,7 @@
                     const promptText = cfg.promptFn(sel, vehicle, pk, refList);
                     const b64 = await genImageWithRefs(promptText, refB64, signal);
                     results[index - 1] = { b64, prompt: promptText, pick: pk, caption: pk.caption || '', before: vehicle.photos[0], photos: vehicle.photos.slice(), inputs: refB64, kind: kindOf(vehicle), filename: `${p}-${lastRun.stamp}-${index}.png` };
+                    window.pushHistory({ b64, before: vehicle.photos[0], kind: kindOf(vehicle), caption: pk.caption || '', tab: p, prompt: promptText });
                     const card = document.getElementById(`${p}-card-${index}`);
                     if (card) { card.innerHTML = cardInner(index, results[index - 1]); if (window._i18nApplyNow) window._i18nApplyNow(); }
                 }
@@ -2465,6 +2484,39 @@
                 document.addEventListener('ams-results-changed', render);
                 document.addEventListener('app-lang-changed', render);
                 render();
+
+                const histGrid = document.getElementById('rs-hist-grid');
+                const histEmpty = document.getElementById('rs-hist-empty');
+                const histCount = document.getElementById('rs-hist-count');
+                let hist = [];
+                async function renderHist() {
+                    hist = await window.historyDB.list();
+                    histCount.textContent = `${hist.length}/${HS_MAX}`;
+                    histEmpty.classList.toggle('hidden', hist.length > 0);
+                    histGrid.innerHTML = hist.map(h => `<div class="rounded-lg overflow-hidden border border-gray-100 bg-white">
+                        <button type="button" class="block w-full" data-action="preview" data-id="${h.id}" data-i18n-title="st.preview"><img src="data:image/png;base64,${h.b64}" alt="" class="w-full aspect-square object-cover"></button>
+                        <p class="text-[10px] text-gray-400 px-1 pt-1 truncate"><span data-i18n="nav.${window.escHtml(h.tab || 'modif')}"></span> &middot; ${new Date(h.createdAt || 0).toLocaleTimeString(window.getLang() === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <div class="flex">
+                            <button type="button" class="flex-1 text-cyan-700 text-sm" style="min-height:40px;" data-action="download" data-id="${h.id}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
+                            <button type="button" class="flex-1 text-violet-700 text-sm" style="min-height:40px;" data-action="save" data-id="${h.id}" data-i18n-title="st.save"><i class="fas fa-bookmark"></i></button>
+                        </div>
+                    </div>`).join('');
+                    if (window._i18nApplyNow) window._i18nApplyNow();
+                }
+                histGrid.addEventListener('click', async (e) => {
+                    const btn = e.target.closest('button[data-action]'); if (!btn) return;
+                    const h = hist.find(x => x.id === btn.dataset.id); if (!h) return;
+                    const action = btn.dataset.action;
+                    if (action === 'preview') window.showImagePreview('data:image/png;base64,' + h.b64);
+                    if (action === 'download') await window.downloadImage('data:image/png;base64,' + h.b64, `terakhir-${h.id}.png`);
+                    if (action === 'save') {
+                        if ((await window.resultDB.list()).some(x => x.b64 === h.b64)) await window.uiNotify(t('st.already-saved'));
+                        else await window.saveResult({ b64: h.b64, before: h.before, kind: h.kind, caption: h.caption, tab: h.tab, prompt: h.prompt });
+                    }
+                });
+                document.addEventListener('ams-history-changed', renderHist);
+                document.addEventListener('app-lang-changed', renderHist);
+                renderHist();
             })();
             // === END TAB: HASIL TERSIMPAN ===
 
@@ -2548,8 +2600,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.4.9';
+            window.APP_VERSION = '1.5.0';
             window.CHANGELOG = [
+                { version: '1.5.0', date: '4 Nov 2026', changes: [
+                    { id: 'Baru: Hasil Terakhir di menu Hasil Tersimpan - 10 hasil generate terakhir disimpan otomatis di perangkat, jadi tidak hilang kalau halaman Canvas tertutup atau dimuat ulang. Bisa dilihat, di-download, atau dipindah ke Koleksi',
+                      en: 'New: Recent Results in Saved Results - your last 10 generated results are kept automatically on the device, so they are not lost if the Canvas page closes or reloads. View, download, or move them to the Collection' }
+                ] },
                 { version: '1.4.9', date: '3 Nov 2026', changes: [
                     { id: 'Aksesibilitas: semua kolom isian (email, nama kendaraan, catatan, upload foto, pilihan suasana) kini punya nama yang dibacakan pembaca layar, mengikuti bahasa app',
                       en: 'Accessibility: every input (email, vehicle name, notes, photo upload, scene picker) now has a name read out by screen readers, following the app language' },
