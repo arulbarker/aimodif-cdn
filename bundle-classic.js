@@ -171,6 +171,7 @@
                     'st.use': 'Jadikan kendaraan',
                     'st.saved': 'Tersimpan di Hasil Tersimpan.',
                     'st.already-saved': 'Hasil ini sudah ada di Hasil Tersimpan.',
+                    'st.saved-mark': 'Sudah ada di Koleksi',
                     'rs.title': 'Hasil Tersimpan',
                     'rs.subtitle': 'Hasil generate yang kamu simpan. Tersimpan di perangkat ini, maksimal 20 foto.',
                     'rs.list-title': 'Koleksi',
@@ -179,6 +180,7 @@
                     'rs.hist-title': 'Hasil Terakhir',
                     'rs.hist-sub': '10 hasil generate terakhir disimpan otomatis di perangkat ini, jadi tidak hilang kalau halaman tertutup atau dimuat ulang. Yang paling lama terhapus sendiri - simpan ke Koleksi yang mau kamu pertahankan.',
                     'rs.hist-empty': 'Belum ada. Hasil generate dari menu mana pun akan muncul di sini otomatis.',
+                    'rs.hist-del-confirm': 'Buang hasil ini dari Hasil Terakhir? Yang sudah disimpan ke Koleksi tidak ikut terhapus.',
                     'rs.tip1': 'Simpan hanya hasil terbaik, kuota 20 foto per perangkat. Hapus yang lama kalau penuh.',
                     'rs.tip2': 'Tombol "Jadikan kendaraan" memakai hasil ini sebagai foto dasar di studio lain, misalnya lihat dari angle lain.',
                     'rs.tip3': 'Tersimpan di browser perangkat ini, bukan di server. Hapus data browser = koleksi ikut hilang, jadi download yang penting.',
@@ -416,6 +418,7 @@
                     'st.use': 'Use as vehicle',
                     'st.saved': 'Saved to Saved Results.',
                     'st.already-saved': 'This result is already in Saved Results.',
+                    'st.saved-mark': 'Already in the Collection',
                     'rs.title': 'Saved Results',
                     'rs.subtitle': 'Generated results you saved. Stored on this device, up to 20 photos.',
                     'rs.list-title': 'Collection',
@@ -424,6 +427,7 @@
                     'rs.hist-title': 'Recent Results',
                     'rs.hist-sub': 'Your last 10 generated results are kept automatically on this device, so they are not lost if the page closes or reloads. The oldest are removed on their own - save the ones you want to keep to the Collection.',
                     'rs.hist-empty': 'Nothing yet. Results generated from any menu will show up here automatically.',
+                    'rs.hist-del-confirm': 'Remove this result from Recent Results? Anything already saved to the Collection stays.',
                     'rs.tip1': 'Save only your best results, 20 photos per device. Delete old ones when full.',
                     'rs.tip2': '"Use as vehicle" uses this result as the base photo in another studio, e.g. to view it from other angles.',
                     'rs.tip3': 'Stored in the browser of this device, not on a server. Clearing browser data clears the collection, so download what matters.',
@@ -2491,16 +2495,26 @@
                 let hist = [];
                 async function renderHist() {
                     hist = await window.historyDB.list();
+                    const savedB64 = new Set((await window.resultDB.list()).map(x => x.b64));
                     histCount.textContent = `${hist.length}/${HS_MAX}`;
                     histEmpty.classList.toggle('hidden', hist.length > 0);
-                    histGrid.innerHTML = hist.map(h => `<div class="rounded-lg overflow-hidden border border-gray-100 bg-white">
-                        <button type="button" class="block w-full" data-action="preview" data-id="${h.id}" data-i18n-title="st.preview"><img src="data:image/png;base64,${h.b64}" alt="" class="w-full aspect-square object-cover"></button>
-                        <p class="text-[10px] text-gray-400 px-1 pt-1 truncate"><span data-i18n="nav.${window.escHtml(h.tab || 'modif')}"></span> &middot; ${new Date(h.createdAt || 0).toLocaleTimeString(window.getLang() === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-                        <div class="flex">
-                            <button type="button" class="flex-1 text-cyan-700 text-sm" style="min-height:40px;" data-action="download" data-id="${h.id}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
-                            <button type="button" class="flex-1 text-violet-700 text-sm" style="min-height:40px;" data-action="save" data-id="${h.id}" data-i18n-title="st.save"><i class="fas fa-bookmark"></i></button>
+                    histGrid.innerHTML = hist.map(h => {
+                        const isSaved = savedB64.has(h.b64);
+                        const jam = new Date(h.createdAt || 0).toLocaleTimeString(window.getLang() === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+                        return `<div class="rounded-lg overflow-hidden border border-gray-100 bg-white">
+                        <div class="relative">
+                            <button type="button" class="block w-full" data-action="preview" data-id="${h.id}" data-i18n-title="st.preview"><img src="data:image/png;base64,${h.b64}" alt="" class="w-full aspect-square object-cover"></button>
+                            <button type="button" class="absolute top-0 right-0 flex items-center justify-center" style="min-height:44px;min-width:44px;background:none;" data-action="delete" data-id="${h.id}" data-i18n-title="btn.delete" aria-label="${window.escHtml(t('btn.delete'))}"><span class="flex items-center justify-center rounded-full text-white text-[11px]" style="width:22px;height:22px;background:rgba(15,23,42,.6);"><i class="fas fa-xmark"></i></span></button>
                         </div>
-                    </div>`).join('');
+                        <p class="text-[11px] text-gray-600 px-1 pt-1 truncate"><span data-i18n="nav.${window.escHtml(h.tab || 'modif')}"></span>${h.caption ? ` &middot; <span data-i18n-dyn>${window.escHtml(h.caption)}</span>` : ''}</p>
+                        <p class="text-[11px] text-gray-500 px-1 truncate">${jam}</p>
+                        <div class="flex">
+                            ${h.before ? `<button type="button" class="flex-1 text-amber-600 text-sm" style="min-height:44px;" data-action="compare" data-id="${h.id}" data-i18n-title="st.compare"><i class="fas fa-left-right"></i></button>` : ''}
+                            <button type="button" class="flex-1 text-cyan-700 text-sm" style="min-height:44px;" data-action="download" data-id="${h.id}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
+                            <button type="button" class="flex-1 text-sm ${isSaved ? 'text-emerald-600' : 'text-violet-700'}" style="min-height:44px;" data-action="save" data-id="${h.id}" data-i18n-title="${isSaved ? 'st.saved-mark' : 'st.save'}"><i class="fas ${isSaved ? 'fa-circle-check' : 'fa-bookmark'}"></i></button>
+                        </div>
+                    </div>`;
+                    }).join('');
                     if (window._i18nApplyNow) window._i18nApplyNow();
                 }
                 histGrid.addEventListener('click', async (e) => {
@@ -2508,13 +2522,20 @@
                     const h = hist.find(x => x.id === btn.dataset.id); if (!h) return;
                     const action = btn.dataset.action;
                     if (action === 'preview') window.showImagePreview('data:image/png;base64,' + h.b64);
+                    if (action === 'compare') window.showCompare('data:image/jpeg;base64,' + h.before, 'data:image/png;base64,' + h.b64);
                     if (action === 'download') await window.downloadImage('data:image/png;base64,' + h.b64, `terakhir-${h.id}.png`);
                     if (action === 'save') {
                         if ((await window.resultDB.list()).some(x => x.b64 === h.b64)) await window.uiNotify(t('st.already-saved'));
                         else await window.saveResult({ b64: h.b64, before: h.before, kind: h.kind, caption: h.caption, tab: h.tab, prompt: h.prompt });
                     }
+                    if (action === 'delete') {
+                        if (!(await window.uiConfirm(t('rs.hist-del-confirm')))) return;
+                        await window.historyDB.remove(h.id);
+                        document.dispatchEvent(new CustomEvent('ams-history-changed'));
+                    }
                 });
                 document.addEventListener('ams-history-changed', renderHist);
+                document.addEventListener('ams-results-changed', renderHist);
                 document.addEventListener('app-lang-changed', renderHist);
                 renderHist();
             })();
@@ -2600,8 +2621,18 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.5.0';
+            window.APP_VERSION = '1.5.1';
             window.CHANGELOG = [
+                { version: '1.5.1', date: '5 Nov 2026', changes: [
+                    { id: 'Hasil Terakhir kini menampilkan sudut tiap foto, jadi 10 hasil dari Acak bisa dibedakan tanpa dibuka satu-satu',
+                      en: 'Recent Results now shows the angle of each photo, so 10 results from Random can be told apart without opening them one by one' },
+                    { id: 'Thumbnail Hasil Terakhir diperbesar jadi 2 kolom di HP - hasil modif lebih mudah dinilai',
+                      en: 'Recent Results thumbnails are bigger (2 columns on phones) so mod results are easier to judge' },
+                    { id: 'Tambahan tombol Bandingkan (sebelum/sesudah) dan Hapus di tiap hasil terakhir',
+                      en: 'Added Compare (before/after) and Delete buttons on each recent result' },
+                    { id: 'Hasil yang sudah masuk Koleksi ditandai centang hijau - tidak perlu menebak mana yang sudah disimpan',
+                      en: 'Results already in the Collection are marked with a green check - no more guessing which ones are saved' }
+                ] },
                 { version: '1.5.0', date: '4 Nov 2026', changes: [
                     { id: 'Baru: Hasil Terakhir di menu Hasil Tersimpan - 10 hasil generate terakhir disimpan otomatis di perangkat, jadi tidak hilang kalau halaman Canvas tertutup atau dimuat ulang. Bisa dilihat, di-download, atau dipindah ke Koleksi',
                       en: 'New: Recent Results in Saved Results - your last 10 generated results are kept automatically on the device, so they are not lost if the Canvas page closes or reloads. View, download, or move them to the Collection' }
