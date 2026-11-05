@@ -261,8 +261,11 @@
                     'err.login.failed': 'Login gagal. Coba lagi.',
                     'err.server-busy': 'Server sedang sibuk, coba lagi sebentar.',
                     'warn.session-ended': 'Sesi berakhir. Akun login di perangkat lain.',
+                    'err.login.recheck': 'Sesi perlu diperiksa ulang. Tekan Masuk lagi dengan email pembelianmu.',
                     'ios.save-title': 'Simpan Gambar',
-                    'ios.save-hint': 'Tekan dan tahan gambar di bawah, lalu pilih "Simpan ke Foto".'
+                    'ios.save-hint': 'Tekan dan tahan gambar di bawah, lalu pilih "Simpan ke Foto".',
+                    'ios.save-title-all': 'Simpan Semua Gambar',
+                    'ios.save-hint-all': 'Tekan dan tahan tiap gambar di bawah, lalu pilih "Simpan ke Foto".'
                 },
                 en: {
                     'app.title': 'AI Modif Studio',
@@ -508,8 +511,11 @@
                     'err.login.failed': 'Sign in failed. Try again.',
                     'err.server-busy': 'Server is busy, try again in a moment.',
                     'warn.session-ended': 'Session ended. This account signed in on another device.',
+                    'err.login.recheck': 'Your session needs a re-check. Press Sign in again with your purchase email.',
                     'ios.save-title': 'Save Image',
-                    'ios.save-hint': 'Press and hold the image below, then choose "Save to Photos".'
+                    'ios.save-hint': 'Press and hold the image below, then choose "Save to Photos".',
+                    'ios.save-title-all': 'Save All Images',
+                    'ios.save-hint-all': 'Press and hold each image below, then choose "Save to Photos".'
                 }
             };
 
@@ -803,6 +809,39 @@
             window.downloadImage = downloadImage;
             window.downloadDataURINew = downloadImage;
 
+            window.__iosShareImages = async function (items) {
+                if (!items.length || !navigator.share || !navigator.canShare) return false;
+                const files = [];
+                for (const it of items) {
+                    try { files.push(new File([it.blob], it.filename, { type: it.blob.type || 'image/png' })); }
+                    catch (e) { return false; }
+                }
+                try {
+                    if (!navigator.canShare({ files })) return false;
+                    await navigator.share({ files, title: t('ios.save-title-all') });
+                    return true;
+                } catch (err) { return !!(err && err.name === 'AbortError'); }
+            };
+            window.downloadImages = async function (list) {
+                if (!list || !list.length) return;
+                if (list.length === 1 || !(window.__isIOS && window.__isIOS())) {
+                    for (let i = 0; i < list.length; i++) {
+                        await downloadImage(list[i].url, list[i].filename);
+                        if (i < list.length - 1) await new Promise(res => setTimeout(res, 600));
+                    }
+                    return;
+                }
+                const items = [];
+                for (const it of list) {
+                    try { const resp = await fetch(it.url); items.push({ blob: await resp.blob(), url: it.url, filename: it.filename }); }
+                    catch (e) { window.logDebug('download-all', e); }
+                }
+                if (await window.__iosShareImages(items)) return;
+                showUniversalModal(t('ios.save-title-all'),
+                    `<p class="mb-3 text-gray-700 text-sm">${window.escHtml(t('ios.save-hint-all'))}</p>` +
+                    items.map(it => `<div class="bg-gray-100 p-2 rounded-lg mb-2"><img src="${it.url}" alt="" class="w-full rounded-lg" style="-webkit-touch-callout: default; pointer-events: auto;"><p class="mt-1 text-[11px] text-gray-500 break-all">${window.escHtml(it.filename)}</p></div>`).join(''));
+            };
+
             // ==================== KOMPRES GAMBAR + UTIL ====================
             window.compressImage = function (source, maxSide = 1280, quality = 0.88) {
                 return new Promise((resolve, reject) => {
@@ -988,8 +1027,14 @@
                 const savedName = localStorage.getItem('ams_name');
                 if (savedEmail && savedName) {
                     setLoading(true);
+                    emailInput.value = savedEmail;
                     api('cek', savedEmail)
-                        .then(d => { setLoading(false); if (d.status === 'VALID') openApp(savedName); else clearSession(); })
+                        .then(d => {
+                            setLoading(false);
+                            if (d.status === 'VALID') { openApp(savedName); return; }
+                            if (d.status === 'INVALID') clearSession();
+                            showError(d.message || t('err.login.recheck'));
+                        })
                         .catch(() => { setLoading(false); openApp(savedName); });
                 }
             })();
@@ -2130,6 +2175,7 @@
                             const inputs = (r.inputs && r.inputs.length) ? r.inputs : ((r.photos && r.photos.length) ? r.photos : [r.before]);
                             const b64 = await genImageWithRefs(r.prompt, inputs);
                             results[idx] = Object.assign({}, r, { b64, saved: false });
+                            window.pushHistory({ b64, before: r.before, kind: r.kind, caption: r.caption, tab: p, prompt: r.prompt });
                             Object.keys(card.dataset).filter(k => /^vp\d+$/.test(k)).forEach(k => delete card.dataset[k]);
                             card.innerHTML = cardInner(idx + 1, results[idx]);
                         } catch (err) {
@@ -2144,11 +2190,7 @@
                 });
 
                 dlAll.addEventListener('click', async () => {
-                    const list = results.filter(Boolean);
-                    for (let i = 0; i < list.length; i++) {
-                        await window.downloadImage('data:image/png;base64,' + list[i].b64, list[i].filename);
-                        await new Promise(res => setTimeout(res, 600));
-                    }
+                    await window.downloadImages(results.filter(Boolean).map(r => ({ url: 'data:image/png;base64,' + r.b64, filename: r.filename })));
                 });
 
                 if (window._i18nApplyNow) window._i18nApplyNow();
@@ -2461,7 +2503,7 @@
                         <p class="cap pt-2"><span data-i18n="nav.${window.escHtml(r.tab || 'modif')}"></span>${r.caption ? ` &middot; <span data-i18n-dyn>${window.escHtml(r.caption)}</span>` : ''} &middot; ${new Date(r.createdAt || 0).toLocaleDateString(window.getLang() === 'id' ? 'id-ID' : 'en-US')}</p>
                         <div class="result-card-actions">
                             <button class="icon-btn" style="background:#3b82f6;" data-action="preview" data-id="${r.id}" data-i18n-title="st.preview"><i class="fas fa-eye"></i></button>
-                            <button class="icon-btn" style="background:#f59e0b;" data-action="compare" data-id="${r.id}" data-i18n-title="st.compare"><i class="fas fa-left-right"></i></button>
+                            ${r.before ? `<button class="icon-btn" style="background:#f59e0b;" data-action="compare" data-id="${r.id}" data-i18n-title="st.compare"><i class="fas fa-left-right"></i></button>` : ''}
                             <button class="icon-btn" style="background:#0891b2;" data-action="download" data-id="${r.id}" data-i18n-title="st.download"><i class="fas fa-download"></i></button>
                             <button class="icon-btn" style="background:#d946ef;" data-action="video" data-id="${r.id}" data-i18n-title="st.video"><i class="fas fa-video"></i></button>
                             <button class="icon-btn" style="background:#0f766e;" data-action="use" data-id="${r.id}" data-i18n-title="st.use"><i class="fas fa-car-side"></i></button>
@@ -2621,8 +2663,20 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.5.1';
+            window.APP_VERSION = '1.5.2';
             window.CHANGELOG = [
+                { version: '1.5.2', date: '6 Nov 2026', changes: [
+                    { id: 'Buka app lalu diminta login lagi: sekarang alasannya ditulis di layar login dan emailmu sudah terisi - tidak lagi layar kosong tanpa penjelasan',
+                      en: 'If the app asks you to sign in again, the reason is now shown on the sign-in screen and your email is pre-filled - no more blank screen without explanation' },
+                    { id: 'Gangguan sementara di server tidak lagi menghapus sesi: buka lagi sebentar kemudian dan kamu langsung masuk',
+                      en: 'A temporary server hiccup no longer wipes your session: reopen a moment later and you are signed straight back in' },
+                    { id: 'Hasil dari tombol Ulangi ikut masuk Hasil Terakhir - tidak hilang kalau halaman dimuat ulang',
+                      en: 'Results from the Retry button now also land in Recent Results - they survive a page reload' },
+                    { id: 'Download Semua di iPhone: semua foto dibagikan sekaligus (atau tampil lengkap dalam satu halaman simpan), bukan hanya foto terakhir',
+                      en: 'Download All on iPhone now shares every photo at once (or shows them all on one save page) instead of only the last one' },
+                    { id: 'Tombol Bandingkan di Koleksi disembunyikan kalau foto sebelumnya tidak tersimpan',
+                      en: 'The Compare button in Collection is hidden when the before photo was not stored' }
+                ] },
                 { version: '1.5.1', date: '5 Nov 2026', changes: [
                     { id: 'Hasil Terakhir kini menampilkan sudut tiap foto, jadi 10 hasil dari Acak bisa dibedakan tanpa dibuka satu-satu',
                       en: 'Recent Results now shows the angle of each photo, so 10 results from Random can be told apart without opening them one by one' },
