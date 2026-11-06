@@ -2896,6 +2896,18 @@
                     el._t = setTimeout(() => { el.style.opacity = '0'; }, 4000);
                 }
 
+                function inputDari(kotak) {
+                    if (!kotak) return null;
+                    const anak = kotak.querySelector && kotak.querySelector('input[type="file"]');
+                    if (anak) return anak;
+                    if (kotak.htmlFor) {
+                        const tertaut = document.getElementById(kotak.htmlFor);
+                        if (tertaut) return tertaut;
+                    }
+                    const induk = kotak.parentElement;
+                    return (induk && induk.querySelector) ? induk.querySelector('input[type="file"]') : null;
+                }
+
                 let sasaran = null;
                 document.addEventListener('click', (e) => {
                     const el = e.target;
@@ -2903,7 +2915,7 @@
                     if (el.matches('input[type="file"]')) { sasaran = el; return; }
                     const kotak = el.closest(PEMBUNGKUS);
                     if (!kotak) return;
-                    const inp = kotak.querySelector('input[type="file"]');
+                    const inp = inputDari(kotak);
                     if (inp) sasaran = inp;
                     else if (kotak.matches(ZONA)) sasaran = kotak;
                 }, true);
@@ -2915,10 +2927,20 @@
                     return !!(r.width || r.height);
                 }
 
+                function wakil(inp) {
+                    if (terlihat(inp)) return inp;
+                    if (inp.id) {
+                        const lab = document.querySelector('label[for="' + inp.id + '"]');
+                        if (terlihat(lab)) return lab;
+                    }
+                    return null;
+                }
+
                 function cariSasaran() {
                     if (sasaran && sasaran.isConnected) return sasaran;
                     sasaran = null;
-                    const calon = [].slice.call(document.querySelectorAll('input[type="file"], ' + ZONA)).filter(terlihat);
+                    const calon = [].slice.call(document.querySelectorAll('input[type="file"], ' + ZONA))
+                        .filter((el) => (el.matches('input[type="file"]') ? !!wakil(el) : terlihat(el)));
                     return calon.length === 1 ? calon[0] : null;
                 }
 
