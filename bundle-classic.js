@@ -71,6 +71,8 @@
                     'qk.angle-hint': 'Acak = tiap hasil beda angle. Ikut foto = variasi dengan sudut & latar foto aslimu (paling mirip). Pilih satu angle = variasi dari sudut itu. Jumlahnya atur di langkah berikutnya.',
                     'qk.generate-random': 'Generate {n} hasil',
                     'qk.generate-single': 'Generate {n} variasi',
+                    'qk.generate-random-one': 'Generate {n} hasil',
+                    'qk.generate-single-one': 'Generate {n} hasil',
                     'qk.tip1': 'Tulis instruksi spesifik: ukuran velg, warna, part yang diganti. Boleh bahasa Indonesia.',
                     'qk.tip2': 'Foto referensi velg/body kit paling berpengaruh: AI meniru desainnya ke kendaraanmu.',
                     'qk.tip3': 'Butuh pilihan gaya, part, atau latar? Buka Modif Studio, Warna & Wrap, atau Foto Studio di menu.',
@@ -132,6 +134,7 @@
                     'st.ratio': 'Rasio foto',
                     'st.count': 'Jumlah hasil',
                     'st.count-by-angle': 'Jumlah hasil mengikuti angle yang dipilih: {n} hasil.',
+                    'st.count-by-angle-one': 'Jumlah hasil mengikuti angle yang dipilih: {n} hasil.',
                     'st.plate': 'Plat nomor',
                     'st.plate-keep': 'Pertahankan',
                     'st.plate-blur': 'Blur',
@@ -321,6 +324,8 @@
                     'qk.angle-hint': 'Random = every result from a different angle. Same as photo = variations keeping your photo\'s angle & background (most faithful). Pick one angle = variations from that viewpoint. Set how many in the next step.',
                     'qk.generate-random': 'Generate {n} results',
                     'qk.generate-single': 'Generate {n} variations',
+                    'qk.generate-random-one': 'Generate {n} result',
+                    'qk.generate-single-one': 'Generate {n} result',
                     'qk.tip1': 'Be specific: wheel size, color, parts to replace. Any language works.',
                     'qk.tip2': 'Wheel / body kit reference photos matter most: the AI copies their design onto your vehicle.',
                     'qk.tip3': 'Need style, parts or backdrop options? Open Modif Studio, Color & Wrap or Photo Studio in the menu.',
@@ -382,6 +387,7 @@
                     'st.ratio': 'Aspect ratio',
                     'st.count': 'Number of results',
                     'st.count-by-angle': 'Number of results follows the selected angles: {n} results.',
+                    'st.count-by-angle-one': 'Number of results follows the selected angle: {n} result.',
                     'st.plate': 'License plate',
                     'st.plate-keep': 'Keep',
                     'st.plate-blur': 'Blur',
@@ -536,6 +542,7 @@
                 return null;
             }
             function t(key) { const v = tr(getLang(), key); return v != null ? v : key; }
+            function nKey(key, n) { return Number(n) === 1 ? key + '-one' : key; }
             window.t = t;
             window.getLang = getLang;
 
@@ -1816,7 +1823,7 @@
                     extra: () => {
                         const ratioBlock = `<div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.ratio"></p>
-                                        <div class="grid grid-cols-4 gap-1.5" data-ratio-group><button type="button" class="option-btn selected" data-val="auto" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.ratio-auto"></span></button>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map(r => `<button type="button" class="option-btn" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
+                                        <div class="grid grid-cols-4 gap-1.5" data-ratio-group><button type="button" class="option-btn selected col-span-2" data-val="auto" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;"><span data-i18n="st.ratio-auto"></span></button>${['4:3', '16:9', '1:1', '4:5', '3:4', '9:16'].map(r => `<button type="button" class="option-btn" data-val="${r}" data-no-i18n style="padding:.4rem .2rem;font-size:.75rem;">${r}</button>`).join('')}</div>
                                     </div>`;
                         const plateBlock = `<div>
                                         <p class="text-xs font-medium text-gray-500 mb-1" data-i18n="st.plate"></p>
@@ -1985,7 +1992,7 @@
                     cg.classList.toggle('pointer-events-none', n > 0);
                     const note = host.querySelector('[data-count-note]');
                     note.classList.toggle('hidden', n === 0);
-                    note.textContent = t('st.count-by-angle').replace('{n}', n);
+                    note.textContent = t(nKey('st.count-by-angle', n)).replace('{n}', n);
                 }
                 document.addEventListener('app-lang-changed', refreshGenLabel);
                 function refreshGenLabel() {
@@ -1994,7 +2001,7 @@
                     const span = genBtn.querySelector('[data-i18n]');
                     if (!span) return;
                     const s = readSel();
-                    const key = cfg.generateKey(s);
+                    const key = nKey(cfg.generateKey(s), s.count);
                     span.setAttribute('data-i18n', key);
                     span.dataset.n = s.count;
                     span.textContent = t(key).replace('{n}', s.count);
@@ -2663,8 +2670,14 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.5.3';
+            window.APP_VERSION = '1.5.4';
             window.CHANGELOG = [
+                { version: '1.5.4', date: '10 Nov 2026', changes: [
+                    { id: 'Tombol Generate di tab Cepat sekarang menulis "Generate 1 hasil" saat jumlahnya 1 (bukan "1 variasi")',
+                      en: 'The Quick tab Generate button now reads "Generate 1 result" when the count is 1 (no more "1 variations")' },
+                    { id: 'Pilihan rasio "Ikut foto" tidak lagi terpotong di layar HP',
+                      en: 'The "Same as photo" aspect ratio option no longer spills out of its button on phones' }
+                ] },
                 { version: '1.5.3', date: '6 Nov 2026', changes: [
                     { id: 'Penyempurnaan internal - tidak ada perubahan pada fitur yang kamu pakai',
                       en: 'Internal improvements - no change to the features you use' }
