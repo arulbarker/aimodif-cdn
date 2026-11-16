@@ -667,15 +667,44 @@
             const modalTitle = document.getElementById('modal-title');
             const modalBody = document.getElementById('modal-body');
             const closeModalBtn = document.getElementById('close-modal-btn');
+            let modalPrevFocus = null;
             function showUniversalModal(title, content) {
+                if (!universalModal.classList.contains('visible')) modalPrevFocus = document.activeElement;
                 modalTitle.innerText = title;
                 modalBody.innerHTML = content;
                 universalModal.classList.add('visible');
                 if (window._i18nApplyNow) window._i18nApplyNow();
+                closeModalBtn.focus({ preventScroll: true });
             }
             window.showUniversalModal = showUniversalModal;
-            window.closeUniversalModal = () => universalModal.classList.remove('visible');
+            window.closeUniversalModal = () => {
+                if (!universalModal.classList.contains('visible')) return;
+                universalModal.classList.remove('visible');
+                if (modalPrevFocus && modalPrevFocus.focus && document.contains(modalPrevFocus)) modalPrevFocus.focus({ preventScroll: true });
+                modalPrevFocus = null;
+            };
             closeModalBtn.addEventListener('click', window.closeUniversalModal);
+            window.nextTrapFocus = function (list, active, shift) {
+                if (!list.length) return 'none';
+                const first = list[0], last = list[list.length - 1];
+                const idx = list.indexOf(active);
+                if (idx === -1) return shift ? last : first;
+                if (shift && active === first) return last;
+                if (!shift && active === last) return first;
+                return null;
+            };
+            const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') return;
+                const box = [...document.querySelectorAll('.image-preview-modal.show')].pop()
+                    || (universalModal.classList.contains('visible') ? universalModal : null);
+                if (!box) return;
+                const list = [...box.querySelectorAll(FOCUSABLE)].filter(el => el.getClientRects().length);
+                const next = window.nextTrapFocus(list, document.activeElement, e.shiftKey);
+                if (next === null) return;
+                e.preventDefault();
+                if (next !== 'none') next.focus({ preventScroll: true });
+            });
             document.addEventListener('keydown', (e) => {
                 if (e.key !== 'Escape') return;
                 const top = [...document.querySelectorAll('.image-preview-modal.show')].pop();
@@ -2670,8 +2699,12 @@
             });
 
             // ==================== VERSI + WHAT'S NEW + DEBUG PANEL ====================
-            window.APP_VERSION = '1.5.4';
+            window.APP_VERSION = '1.5.5';
             window.CHANGELOG = [
+                { version: '1.5.5', date: '17 Nov 2026', changes: [
+                    { id: 'Pakai keyboard: tombol Tab sekarang tetap di dalam jendela yang sedang terbuka (Panduan, konfirmasi, bandingkan) dan fokus kembali ke tombol asal saat jendela ditutup',
+                      en: 'Keyboard users: the Tab key now stays inside the open window (Guide, confirmations, compare) and focus returns to the original button when it closes' }
+                ] },
                 { version: '1.5.4', date: '10 Nov 2026', changes: [
                     { id: 'Tombol Generate di tab Cepat sekarang menulis "Generate 1 hasil" saat jumlahnya 1 (bukan "1 variasi")',
                       en: 'The Quick tab Generate button now reads "Generate 1 result" when the count is 1 (no more "1 variations")' },
